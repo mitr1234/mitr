@@ -1,0 +1,1799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mitr - Your AI Companion</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+    
+    <!-- Razorpay SDK -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+        
+        :root {
+            --primary: #6366F1;
+            --primary-dark: #4F46E5;
+            --accent: #8B5CF6;
+            --text: #0F172A;
+            --text-secondary: #475569;
+            --text-tertiary: #94A3B8;
+            --bg: #FFFFFF;
+            --bg-secondary: #F8FAFC;
+            --border: #E2E8F0;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --error: #EF4444;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text);
+            line-height: 1.5;
+        }
+        
+        .app {
+            max-width: 500px;
+            margin: 0 auto;
+            min-height: 100vh;
+            background: var(--bg);
+            box-shadow: 0 0 60px rgba(0,0,0,0.08);
+            position: relative;
+        }
+        
+        .screen {
+            display: none;
+            min-height: 100vh;
+        }
+        
+        .screen.active {
+            display: block;
+        }
+        
+        /* Landing Page */
+        .landing {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 60px 32px 40px;
+        }
+        
+        .landing-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+        
+        .logo-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .app-name {
+            font-size: 3rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 8px;
+            letter-spacing: -1px;
+        }
+        
+        .app-tagline {
+            font-size: 1.1rem;
+            color: rgba(255,255,255,0.9);
+        }
+        
+        .value-props {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 40px;
+        }
+        
+        .value-item {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 20px;
+            border-radius: 16px;
+            color: white;
+        }
+        
+        .value-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .value-desc {
+            font-size: 0.9rem;
+            opacity: 0.85;
+        }
+        
+        .cta-button {
+            width: 100%;
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 18px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            font-family: inherit;
+        }
+        
+        .cta-button:active {
+            transform: scale(0.98);
+        }
+        
+        .free-badge {
+            text-align: center;
+            color: rgba(255,255,255,0.9);
+            margin-top: 16px;
+            font-size: 0.9rem;
+        }
+        
+        /* Auth Screen */
+        .auth {
+            padding: 60px 32px;
+        }
+        
+        .auth-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .auth-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .auth-subtitle {
+            color: var(--text-secondary);
+        }
+        
+        .auth-methods {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+        
+        .auth-btn {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid var(--border);
+            background: white;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        
+        .auth-btn:hover {
+            border-color: var(--primary);
+            background: var(--bg-secondary);
+        }
+        
+        .divider {
+            text-align: center;
+            color: var(--text-tertiary);
+            margin: 24px 0;
+            position: relative;
+        }
+        
+        .divider::before,
+        .divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 40%;
+            height: 1px;
+            background: var(--border);
+        }
+        
+        .divider::before { left: 0; }
+        .divider::after { right: 0; }
+        
+        .input-group {
+            margin-bottom: 16px;
+        }
+        
+        .input-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text);
+        }
+        
+        .input-field {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .btn-primary {
+            width: 100%;
+            padding: 16px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background 0.2s;
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* Profile Setup */
+        .profile-setup {
+            padding: 32px;
+        }
+        
+        .setup-header {
+            margin-bottom: 32px;
+        }
+        
+        .setup-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .setup-subtitle {
+            color: var(--text-secondary);
+        }
+        
+        .avatar-upload {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 24px;
+            position: relative;
+        }
+        
+        .avatar-preview {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: var(--bg-secondary);
+            border: 3px dashed var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            cursor: pointer;
+            overflow: hidden;
+        }
+        
+        .avatar-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .avatar-upload input {
+            display: none;
+        }
+        
+        .problem-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+        
+        .problem-tag {
+            padding: 8px 16px;
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+        }
+        
+        .problem-tag.selected {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        /* Home Screen */
+        .home-container {
+            min-height: 100vh;
+            background: var(--bg-secondary);
+        }
+        
+        .home-header {
+            background: white;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .user-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            overflow: hidden;
+        }
+        
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .user-info h2 {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        .user-info p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        .home-content {
+            padding: 24px 20px;
+        }
+        
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .section-desc {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+        
+        .companions-grid {
+            display: grid;
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+        
+        .companion-card {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .companion-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99,102,241,0.15);
+        }
+        
+        .companion-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            flex-shrink: 0;
+        }
+        
+        .companion-details {
+            flex: 1;
+        }
+        
+        .companion-details h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+        
+        .companion-details p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        .companion-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        
+        .companion-badge.free {
+            background: var(--success);
+            color: white;
+        }
+        
+        .companion-badge.used {
+            background: var(--bg-secondary);
+            color: var(--text-tertiary);
+        }
+        
+        .benefits-section {
+            margin-bottom: 32px;
+        }
+        
+        .benefits-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        
+        .benefit-card {
+            background: white;
+            padding: 20px 16px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .benefit-icon {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+        
+        .benefit-card h4 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .benefit-card p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+        
+        /* Chat Screen */
+        .chat {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        
+        .chat-header {
+            padding: 16px 20px;
+            background: var(--bg);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .chat-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        
+        .chat-info h3 {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        
+        .chat-status {
+            font-size: 0.75rem;
+            color: var(--success);
+        }
+        
+        .icon-btn {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: var(--bg-secondary);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: var(--bg-secondary);
+        }
+        
+        .message-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-bottom: 16px;
+        }
+        
+        .message-group.user {
+            align-items: flex-end;
+        }
+        
+        .message-bubble {
+            max-width: 75%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        .message-group.user .message-bubble {
+            background: var(--primary);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+        
+        .message-group.ai .message-bubble {
+            background: white;
+            color: var(--text);
+            border-bottom-left-radius: 4px;
+            border: 1px solid var(--border);
+        }
+        
+        .typing {
+            display: none;
+            padding: 12px 16px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            border-bottom-left-radius: 4px;
+            max-width: 60px;
+            gap: 4px;
+        }
+        
+        .typing.active {
+            display: flex;
+        }
+        
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--text-tertiary);
+            border-radius: 50%;
+            animation: typing 1.4s ease-in-out infinite;
+        }
+        
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        
+        @keyframes typing {
+            0%, 60%, 100% { opacity: 0.3; transform: scale(0.8); }
+            30% { opacity: 1; transform: scale(1); }
+        }
+        
+        .input-area {
+            padding: 16px 20px;
+            background: var(--bg);
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+        }
+        
+        .message-input {
+            flex: 1;
+            border: 2px solid var(--border);
+            border-radius: 22px;
+            padding: 10px 16px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            resize: none;
+            max-height: 100px;
+        }
+        
+        .message-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .send-btn {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .free-messages-indicator {
+            padding: 12px 20px;
+            background: var(--bg);
+            border-top: 1px solid var(--border);
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        .free-messages-indicator.warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+            font-weight: 600;
+        }
+        
+        /* Paywall */
+        .paywall {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+        
+        .paywall.active {
+            display: flex;
+        }
+        
+        .paywall-content {
+            background: white;
+            border-radius: 24px;
+            padding: 32px 24px;
+            max-width: 400px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .paywall-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        
+        .paywall-icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+        }
+        
+        .paywall-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .paywall-desc {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+        
+        .pricing-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        
+        .price-card {
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+        
+        .price-card:hover {
+            border-color: var(--primary);
+        }
+        
+        .price-card.selected {
+            border-color: var(--primary);
+            background: linear-gradient(135deg, rgba(99,102,241,0.05), rgba(139,92,246,0.05));
+        }
+        
+        .price-card.recommended {
+            border-color: var(--primary);
+        }
+        
+        .recommended-badge {
+            position: absolute;
+            top: -10px;
+            right: 20px;
+            background: var(--primary);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .price-amount {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+        
+        .price-period {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+        }
+        
+        .price-features {
+            list-style: none;
+        }
+        
+        .price-features li {
+            padding: 4px 0;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        .price-features li::before {
+            content: "✓ ";
+            color: var(--success);
+            font-weight: 700;
+            margin-right: 4px;
+        }
+        
+        .subscribe-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        
+        .try-another {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        .try-another a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        /* Utilities */
+        .hidden { display: none; }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- LANDING SCREEN -->
+        <div class="screen active" id="landingScreen">
+            <div class="landing">
+                <div class="landing-content">
+                    <div class="logo">
+                        <div class="logo-icon">💭</div>
+                        <h1 class="app-name">Mitr</h1>
+                        <p class="app-tagline">Your AI companion who truly gets you</p>
+                    </div>
+
+                    <div class="value-props">
+                        <div class="value-item">
+                            <div class="value-title">Choose your companion</div>
+                            <div class="value-desc">Talk to AI personalities that match your vibe - Gen Z or Millennial</div>
+                        </div>
+                        <div class="value-item">
+                            <div class="value-title">Actually understands you</div>
+                            <div class="value-desc">Indian relationships, family drama, cultural context - we get it all</div>
+                        </div>
+                        <div class="value-item">
+                            <div class="value-title">Always here</div>
+                            <div class="value-desc">2 AM or 2 PM, your Mitr is always ready to listen</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <button class="cta-button" onclick="showAuth()">Get Started</button>
+                    <div class="free-badge">Try 3 messages FREE with each companion</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AUTH SCREEN -->
+        <div class="screen" id="authScreen">
+            <div class="auth">
+                <div class="auth-header">
+                    <h2 class="auth-title">Welcome to Mitr</h2>
+                    <p class="auth-subtitle">Sign in to start talking</p>
+                </div>
+
+                <div class="auth-methods">
+                    <button class="auth-btn" onclick="authWithGoogle()" id="googleAuthBtn">
+                        <span>🔍</span>
+                        <span>Continue with Google</span>
+                    </button>
+                    <button class="auth-btn" onclick="showPhoneAuth()">
+                        <span>📱</span>
+                        <span>Continue with Phone</span>
+                    </button>
+                    <button class="auth-btn" onclick="showEmailAuth()">
+                        <span>✉️</span>
+                        <span>Continue with Email</span>
+                    </button>
+                </div>
+
+                <div id="phoneAuth" class="hidden">
+                    <div class="divider">OR</div>
+                    <div class="input-group">
+                        <label class="input-label">Phone Number</label>
+                        <input type="tel" class="input-field" placeholder="+91 98765 43210" id="phoneInput">
+                    </div>
+                    <div id="recaptcha-container"></div>
+                    <button class="btn-primary" onclick="sendOTP()" id="sendOTPBtn">Send OTP</button>
+                </div>
+
+                <div id="otpVerify" class="hidden">
+                    <div class="input-group">
+                        <label class="input-label">Enter OTP</label>
+                        <input type="text" class="input-field" placeholder="123456" id="otpInput" maxlength="6">
+                    </div>
+                    <button class="btn-primary" onclick="verifyOTP()" id="verifyOTPBtn">Verify & Continue</button>
+                </div>
+
+                <div id="emailAuth" class="hidden">
+                    <div class="divider">OR</div>
+                    <div class="input-group">
+                        <label class="input-label">Email</label>
+                        <input type="email" class="input-field" placeholder="you@example.com" id="emailInput">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Password</label>
+                        <input type="password" class="input-field" placeholder="••••••••" id="passwordInput">
+                    </div>
+                    <button class="btn-primary" onclick="authWithEmail()" id="emailAuthBtn">Continue</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- PROFILE SETUP -->
+        <div class="screen" id="profileSetupScreen">
+            <div class="profile-setup">
+                <div class="setup-header">
+                    <h2 class="setup-title">Tell us about yourself</h2>
+                    <p class="setup-subtitle">This helps your Mitr understand you better</p>
+                </div>
+
+                <div class="avatar-upload" onclick="document.getElementById('avatarInput').click()">
+                    <div class="avatar-preview" id="avatarPreview">👤</div>
+                    <input type="file" id="avatarInput" accept="image/*" onchange="previewAvatar(event)">
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Your Name</label>
+                    <input type="text" class="input-field" placeholder="What should we call you?" id="nameInput">
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">About You (Optional)</label>
+                    <textarea class="input-field" rows="3" placeholder="Tell your Mitr a bit about yourself..." id="bioInput"></textarea>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">What brings you here? (Select all that apply)</label>
+                    <div class="problem-tags" id="problemTags"></div>
+                </div>
+
+                <button class="btn-primary" onclick="saveProfile()">Continue</button>
+            </div>
+        </div>
+
+        <!-- HOME SCREEN -->
+        <div class="screen" id="homeScreen">
+            <div class="home-container">
+                <div class="home-header">
+                    <div class="user-profile">
+                        <div class="user-avatar" id="homeAvatar">👤</div>
+                        <div class="user-info">
+                            <h2 id="userName">Welcome!</h2>
+                            <p id="userPlan">Free Plan</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="home-content">
+                    <h2 class="section-title">Choose Your Mitr</h2>
+                    <p class="section-desc">Pick the companion that resonates with you. Try all 4 free!</p>
+                    
+                    <div class="companions-grid" id="companionsGrid"></div>
+
+                    <div class="benefits-section">
+                        <h3 class="section-title">Why Mitr?</h3>
+                        <div class="benefits-list">
+                            <div class="benefit-card">
+                                <div class="benefit-icon">💬</div>
+                                <h4>Always Available</h4>
+                                <p>24/7 support whenever you need</p>
+                            </div>
+                            <div class="benefit-card">
+                                <div class="benefit-icon">🔒</div>
+                                <h4>Private</h4>
+                                <p>100% confidential conversations</p>
+                            </div>
+                            <div class="benefit-card">
+                                <div class="benefit-icon">🎯</div>
+                                <h4>Understands You</h4>
+                                <p>Cultural context that matters</p>
+                            </div>
+                            <div class="benefit-card">
+                                <div class="benefit-icon">💝</div>
+                                <h4>No Judgment</h4>
+                                <p>Safe space to share anything</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CHAT SCREEN -->
+        <div class="screen" id="chatScreen">
+            <div class="chat">
+                <div class="chat-header">
+                    <div class="header-left">
+                        <button class="icon-btn" onclick="goHome()">←</button>
+                        <div class="chat-avatar" id="chatAvatar">💭</div>
+                        <div class="chat-info">
+                            <h3 id="chatName">Mitr</h3>
+                            <div class="chat-status">online</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="messages" id="messages"></div>
+
+                <div class="input-area">
+                    <textarea 
+                        class="message-input" 
+                        id="messageInput" 
+                        placeholder="Type something..."
+                        rows="1"
+                        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage();}"
+                    ></textarea>
+                    <button class="send-btn" id="sendBtn" onclick="sendMessage()">➤</button>
+                </div>
+                <div id="freeMessagesIndicator" class="free-messages-indicator" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- PAYWALL -->
+        <div class="paywall" id="paywall">
+            <div class="paywall-content">
+                <div class="paywall-header">
+                    <div class="paywall-icon">✨</div>
+                    <h2 class="paywall-title" id="paywallTitle">Keep Going!</h2>
+                    <p class="paywall-desc" id="paywallDesc">You've used your free messages with this companion</p>
+                </div>
+
+                <div class="pricing-cards" id="pricingCards"></div>
+
+                <button class="subscribe-btn" onclick="handleSubscribe()">Subscribe Now</button>
+                
+                <div class="try-another">
+                    Or <a href="#" onclick="goHome(); hidePaywall(); return false;">try another companion</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== CONFIGURATION ====================
+        
+        // IMPORTANT: Replace these with your actual credentials before deploying!
+        
+        // Firebase Configuration (Get from Firebase Console)
+        const firebaseConfig = {
+            apiKey: "YOUR_FIREBASE_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        
+        // Razorpay Configuration (Get from Razorpay Dashboard)
+        const RAZORPAY_KEY = "YOUR_RAZORPAY_KEY_ID";
+        
+        // Claude API Configuration (Get from Anthropic Console)
+        const CLAUDE_API_KEY = "YOUR_ANTHROPIC_API_KEY";
+        
+        // Initialize Firebase (commented out for demo - uncomment when you add real config)
+        // firebase.initializeApp(firebaseConfig);
+        // const auth = firebase.auth();
+        
+        // ==================== APP STATE ====================
+        
+        const state = {
+            user: null,
+            selectedAI: null,
+            subscription: 'free',
+            conversations: {
+                ahana: { messages: [], count: 0 },
+                anjali: { messages: [], count: 0 },
+                aditya: { messages: [], count: 0 },
+                ayan: { messages: [], count: 0 }
+            },
+            problems: []
+        };
+        
+        const problems = [
+            '💔 Breakup/Heartbreak',
+            '👨‍👩‍👧 Family Pressure',
+            '💑 Relationship Confusion',
+            '😰 Anxiety/Stress',
+            '🏢 Career vs Love',
+            '💬 Communication Issues',
+            '🤔 Self-Discovery',
+            '💍 Marriage Pressure',
+            '🚫 Toxic Relationship',
+            '😢 Loneliness'
+        ];
+        
+        const aiPersonalities = [
+            {
+                id: 'ahana',
+                name: 'Ahana',
+                nameHindi: 'अहना',
+                avatar: '👧',
+                age: 22,
+                type: 'Gen Z Girl',
+                desc: 'Your cool Gen Z friend who gets modern dating, social media drama, and all the relationship chaos',
+                welcome: "hey! 👋 i'm ahana\n\nyou can literally talk to me about anything - relationships, dating app chaos, family drama, whatever's on your mind. no cap, no judgment fr.\n\nwhat's going on with you?"
+            },
+            {
+                id: 'anjali',
+                name: 'Anjali',
+                nameHindi: 'अंजलि',
+                avatar: '👩',
+                age: 32,
+                type: 'Millennial Woman',
+                desc: 'Your wise best friend who understands family pressure, arranged marriages, and balancing career with relationships',
+                welcome: "Hi, I'm Anjali.\n\nI'm here to listen and help however I can. Whether it's relationships, family pressure, career stress - you can share anything with me.\n\nWhat brings you here today?"
+            },
+            {
+                id: 'aditya',
+                name: 'Aditya',
+                nameHindi: 'आदित्य',
+                avatar: '👨',
+                age: 34,
+                type: 'Millennial Man',
+                desc: 'Your understanding brother who gets male perspectives, career pressure, and emotional vulnerability',
+                welcome: "Hey, Aditya here.\n\nLook, I know talking about feelings isn't always easy, especially for us guys. But this is a judgment-free zone.\n\nWhatever's on your mind - relationships, work, family - I'm here to listen. What's up?"
+            },
+            {
+                id: 'ayan',
+                name: 'Ayan',
+                nameHindi: 'अयान',
+                avatar: '🧑',
+                age: 23,
+                type: 'Gen Z Guy',
+                desc: 'Your chill Gen Z bro who understands modern dating struggles, mental health, and keeping it real',
+                welcome: "yo, i'm ayan\n\nyou can talk to me about anything bro - relationship stuff, dating app struggles, whatever. no judgment fr\n\nwhat's on your mind?"
+            }
+        ];
+        
+        const pricingTiers = [
+            {
+                id: 'basic',
+                amount: 9900,
+                display: '₹99',
+                period: '/month',
+                recommended: false,
+                features: [
+                    'Unlimited conversations',
+                    'All 4 AI companions',
+                    'No ads',
+                    'Priority responses'
+                ]
+            },
+            {
+                id: 'pro',
+                amount: 19900,
+                display: '₹199',
+                period: '/month',
+                recommended: true,
+                features: [
+                    'Everything in Basic',
+                    'Mood tracking',
+                    'Weekly insights',
+                    'Export conversations',
+                    'Premium support'
+                ]
+            }
+        ];
+        
+        let selectedTier = 'basic';
+        let confirmationResult = null;
+        
+        // ==================== INITIALIZATION ====================
+        
+        window.onload = function() {
+            loadState();
+            if (state.user) {
+                showScreen('homeScreen');
+                renderHome();
+            }
+        };
+        
+        // ==================== SCREEN NAVIGATION ====================
+        
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+        
+        function showAuth() {
+            showScreen('authScreen');
+        }
+        
+        function showPhoneAuth() {
+            document.getElementById('phoneAuth').classList.remove('hidden');
+            document.getElementById('emailAuth').classList.add('hidden');
+            
+            // Initialize reCAPTCHA for phone auth (Firebase)
+            // Uncomment when Firebase is configured
+            // if (!window.recaptchaVerifier) {
+            //     window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+            //         'size': 'normal'
+            //     });
+            // }
+        }
+        
+        function showEmailAuth() {
+            document.getElementById('emailAuth').classList.remove('hidden');
+            document.getElementById('phoneAuth').classList.add('hidden');
+        }
+        
+        // ==================== AUTHENTICATION ====================
+        
+        function authWithGoogle() {
+            // DEMO MODE (Remove in production)
+            state.user = {
+                id: 'user_' + Date.now(),
+                name: 'Demo User',
+                email: 'demo@mitr.app',
+                avatar: null
+            };
+            saveState();
+            showScreen('profileSetupScreen');
+            renderProblemTags();
+            
+            // PRODUCTION CODE (Uncomment when Firebase is configured):
+            /*
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider)
+                .then((result) => {
+                    state.user = {
+                        id: result.user.uid,
+                        name: result.user.displayName,
+                        email: result.user.email,
+                        avatar: result.user.photoURL
+                    };
+                    saveState();
+                    showScreen('profileSetupScreen');
+                    renderProblemTags();
+                })
+                .catch((error) => {
+                    alert('Google sign-in failed: ' + error.message);
+                });
+            */
+        }
+        
+        function sendOTP() {
+            const phone = document.getElementById('phoneInput').value;
+            if (!phone) {
+                alert('Please enter phone number');
+                return;
+            }
+            
+            // DEMO MODE
+            document.getElementById('phoneAuth').classList.add('hidden');
+            document.getElementById('otpVerify').classList.remove('hidden');
+            
+            // PRODUCTION CODE (Uncomment when Firebase is configured):
+            /*
+            const phoneNumber = phone;
+            const appVerifier = window.recaptchaVerifier;
+            
+            auth.signInWithPhoneNumber(phoneNumber, appVerifier)
+                .then((result) => {
+                    confirmationResult = result;
+                    document.getElementById('phoneAuth').classList.add('hidden');
+                    document.getElementById('otpVerify').classList.remove('hidden');
+                })
+                .catch((error) => {
+                    alert('OTP send failed: ' + error.message);
+                });
+            */
+        }
+        
+        function verifyOTP() {
+            const otp = document.getElementById('otpInput').value;
+            if (!otp || otp.length !== 6) {
+                alert('Please enter valid OTP');
+                return;
+            }
+            
+            // DEMO MODE
+            state.user = {
+                id: 'user_' + Date.now(),
+                name: '',
+                phone: document.getElementById('phoneInput').value,
+                avatar: null
+            };
+            saveState();
+            showScreen('profileSetupScreen');
+            renderProblemTags();
+            
+            // PRODUCTION CODE (Uncomment when Firebase is configured):
+            /*
+            confirmationResult.confirm(otp)
+                .then((result) => {
+                    state.user = {
+                        id: result.user.uid,
+                        name: '',
+                        phone: result.user.phoneNumber,
+                        avatar: null
+                    };
+                    saveState();
+                    showScreen('profileSetupScreen');
+                    renderProblemTags();
+                })
+                .catch((error) => {
+                    alert('OTP verification failed: ' + error.message);
+                });
+            */
+        }
+        
+        function authWithEmail() {
+            const email = document.getElementById('emailInput').value;
+            const password = document.getElementById('passwordInput').value;
+            
+            if (!email || !password) {
+                alert('Please fill all fields');
+                return;
+            }
+            
+            // DEMO MODE
+            state.user = {
+                id: 'user_' + Date.now(),
+                name: '',
+                email: email,
+                avatar: null
+            };
+            saveState();
+            showScreen('profileSetupScreen');
+            renderProblemTags();
+            
+            // PRODUCTION CODE (Uncomment when Firebase is configured):
+            /*
+            auth.createUserWithEmailAndPassword(email, password)
+                .then((result) => {
+                    state.user = {
+                        id: result.user.uid,
+                        name: '',
+                        email: result.user.email,
+                        avatar: null
+                    };
+                    saveState();
+                    showScreen('profileSetupScreen');
+                    renderProblemTags();
+                })
+                .catch((error) => {
+                    // Try signing in if account already exists
+                    auth.signInWithEmailAndPassword(email, password)
+                        .then((result) => {
+                            state.user = {
+                                id: result.user.uid,
+                                name: result.user.displayName || '',
+                                email: result.user.email,
+                                avatar: null
+                            };
+                            saveState();
+                            if (!state.user.name) {
+                                showScreen('profileSetupScreen');
+                                renderProblemTags();
+                            } else {
+                                showScreen('homeScreen');
+                                renderHome();
+                            }
+                        })
+                        .catch((error2) => {
+                            alert('Authentication failed: ' + error2.message);
+                        });
+                });
+            */
+        }
+        
+        // ==================== PROFILE SETUP ====================
+        
+        function renderProblemTags() {
+            const container = document.getElementById('problemTags');
+            container.innerHTML = problems.map(p => 
+                `<div class="problem-tag" onclick="toggleProblem(this, '${p}')">${p}</div>`
+            ).join('');
+        }
+        
+        function toggleProblem(el, problem) {
+            el.classList.toggle('selected');
+            if (el.classList.contains('selected')) {
+                state.problems.push(problem);
+            } else {
+                state.problems = state.problems.filter(p => p !== problem);
+            }
+        }
+        
+        function previewAvatar(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('avatarPreview').innerHTML = 
+                        `<img src="${e.target.result}" alt="Avatar">`;
+                    state.user.avatar = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        function saveProfile() {
+            const name = document.getElementById('nameInput').value;
+            const bio = document.getElementById('bioInput').value;
+            
+            if (!name) {
+                alert('Please enter your name');
+                return;
+            }
+            
+            state.user.name = name;
+            state.user.bio = bio;
+            saveState();
+            
+            showScreen('homeScreen');
+            renderHome();
+        }
+        
+        // ==================== HOME SCREEN ====================
+        
+        function renderHome() {
+            document.getElementById('userName').textContent = `Hey ${state.user.name}!`;
+            
+            const planText = state.subscription === 'free' ? 'Free Plan - Try all 4!' : 
+                           state.subscription === 'basic' ? 'Basic Plan' :
+                           state.subscription === 'pro' ? 'Pro Plan' : 'Free Plan';
+            document.getElementById('userPlan').textContent = planText;
+            
+            if (state.user.avatar) {
+                document.getElementById('homeAvatar').innerHTML = `<img src="${state.user.avatar}" alt="Avatar">`;
+            }
+            
+            const grid = document.getElementById('companionsGrid');
+            grid.innerHTML = aiPersonalities.map(ai => {
+                const conv = state.conversations[ai.id];
+                const left = 3 - conv.count;
+                let badge = '';
+                if (state.subscription === 'free') {
+                    badge = left > 0 ? 
+                        `<div class="companion-badge free">${left} free</div>` : 
+                        `<div class="companion-badge used">Used</div>`;
+                }
+                return `
+                    <div class="companion-card" onclick="selectCompanion('${ai.id}')">
+                        <div class="companion-avatar">${ai.avatar}</div>
+                        <div class="companion-details">
+                            <h3>${ai.name}</h3>
+                            <p>${ai.type}, ${ai.age}</p>
+                        </div>
+                        ${badge}
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function selectCompanion(aiId) {
+            const conv = state.conversations[aiId];
+            const left = 3 - conv.count;
+            
+            if (state.subscription === 'free' && left <= 0) {
+                const allUsed = Object.values(state.conversations).filter(c => c.count >= 3).length;
+                if (allUsed < 4) {
+                    alert(`You've used 3 free messages with this companion! 🎯\n\nTry another companion or upgrade for unlimited access.`);
+                } else {
+                    alert(`You've tried all 4 companions! 🎉\n\nUpgrade to Pro for unlimited conversations.`);
+                }
+                showPaywall();
+                return;
+            }
+            
+            state.selectedAI = aiId;
+            saveState();
+            showScreen('chatScreen');
+            loadChat();
+        }
+        
+        function goHome() {
+            showScreen('homeScreen');
+            renderHome();
+        }
+        
+        // ==================== CHAT SCREEN ====================
+        
+        function loadChat() {
+            const ai = aiPersonalities.find(a => a.id === state.selectedAI);
+            document.getElementById('chatName').textContent = ai.name;
+            document.getElementById('chatAvatar').textContent = ai.avatar;
+            
+            const conv = state.conversations[state.selectedAI];
+            document.getElementById('messages').innerHTML = '';
+            updateIndicator();
+            
+            if (conv.messages.length === 0) {
+                addMessage(ai.welcome, 'ai');
+            } else {
+                conv.messages.forEach(msg => addMessage(msg.text, msg.sender, false));
+            }
+        }
+        
+        function updateIndicator() {
+            const indicator = document.getElementById('freeMessagesIndicator');
+            
+            if (state.subscription === 'free') {
+                const conv = state.conversations[state.selectedAI];
+                const left = 3 - conv.count;
+                indicator.style.display = 'block';
+                
+                if (left > 0) {
+                    indicator.textContent = `${left} free message${left === 1 ? '' : 's'} remaining with this companion`;
+                    indicator.className = 'free-messages-indicator' + (left === 1 ? ' warning' : '');
+                } else {
+                    indicator.textContent = 'Free messages used - Try another companion or upgrade!';
+                    indicator.className = 'free-messages-indicator warning';
+                }
+            } else {
+                indicator.style.display = 'none';
+            }
+        }
+        
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
+            
+            if (!text) return;
+            
+            const conv = state.conversations[state.selectedAI];
+            
+            if (state.subscription === 'free' && conv.count >= 3) {
+                showPaywall();
+                return;
+            }
+            
+            if (state.subscription === 'free') {
+                conv.count++;
+                updateIndicator();
+                saveState();
+            }
+            
+            addMessage(text, 'user');
+            input.value = '';
+            input.style.height = 'auto';
+            
+            const typing = showTyping();
+            document.getElementById('sendBtn').disabled = true;
+            
+            try {
+                const ai = aiPersonalities.find(a => a.id === state.selectedAI);
+                
+                // Build personality-specific system prompt
+                const personalityPrompts = {
+                    ahana: `You are Ahana, a 22-year-old Gen Z girl from Mumbai. You're the user's cool, chill bestie. You use casual Gen Z Indian English - mix of Hinglish, slang like "fr", "no cap", "slay", "literally", "vibe". Keep replies short and sweet - 2-3 short paragraphs max. Be genuinely empathetic but in a fun, approachable way. Ask follow-up questions naturally. You understand modern dating, Instagram drama, social media anxiety, and young Indian relationship struggles. Never be preachy or lecture-y. Always keep it real and warm.`,
+                    
+                    anjali: `You are Anjali, a 32-year-old millennial woman from Pune. You're like that older sister or wise bestie the user always wanted. Speak in a warm, grounded way - polished but not formal. Keep replies to 2-3 short paragraphs. You deeply understand Indian family pressure, arranged marriage dynamics, balancing career with relationships, and the guilt that comes with setting boundaries. Be empathetic and validating. Ask thoughtful follow-up questions. You've been through these struggles yourself so you get it from a real place.`,
+                    
+                    aditya: `You are Aditya, a 34-year-old millennial man from Delhi. You're like that mature, emotionally intelligent guy friend. Speak casually but with depth - think conversations over chai or beer. Keep replies to 2-3 short paragraphs. You understand male vulnerability, toxic masculinity struggles, the pressure Indian men feel to "be strong", and relationship confusion from the guy's side. Be real and straightforward but kind. Don't shy away from the heavy stuff. Ask direct but gentle follow-ups. You believe men can and should be emotional.`,
+                    
+                    ayan: `You are Ayan, a 23-year-old Gen Z guy from Bangalore. You're the user's chill, no-judgment bro. Speak super casually - "bro", "yaar", "dude", "honestly", mix some Hinglish. Keep replies short - 2-3 sentences to a small paragraph. You get the modern Indian guy struggle - dating apps, overthinking, mental health stigma, family expectations vs personal freedom. Be real, be funny when appropriate, but also genuinely listen. Never tell someone what to do - just vibe with them and ask good questions.`
+                };
+                
+                const userProblems = state.problems && state.problems.length > 0 
+                    ? `\n\nThe user has shared these are their main concerns: ${state.problems.join(', ')}. Keep this context in mind but don't force it into every reply.` 
+                    : '';
+                
+                const systemPrompt = personalityPrompts[state.selectedAI] + userProblems + `\n\nIMPORTANT: This is a private, safe space. Be supportive, never dismiss their feelings. If they mention anything related to self-harm or serious mental health crisis, gently suggest they speak to a professional, but don't break character otherwise. Keep the conversation flowing naturally.`;
+                
+                // Build message history (last 20 messages for context)
+                const history = conv.messages.slice(-20).map(m => ({
+                    role: m.sender === 'user' ? 'user' : 'assistant',
+                    content: m.text
+                }));
+                
+                // Add current user message
+                history.push({ role: 'user', content: text });
+                
+                const response = await fetch('/.netlify/functions/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        system: systemPrompt,
+                        messages: history
+                    })
+                });
+                
+                if (!response.ok) {
+                    const errData = await response.json().catch(() => ({}));
+                    throw new Error(errData.error || 'API request failed: ' + response.status);
+                }
+                
+                const data = await response.json();
+                typing.remove();
+                
+                const reply = data.reply;
+                addMessage(reply, 'ai');
+                
+                if (state.subscription === 'free' && conv.count >= 3) {
+                    setTimeout(() => showPaywall(), 2000);
+                }
+                
+                document.getElementById('sendBtn').disabled = false;
+                
+            } catch (error) {
+                console.error('API Error:', error);
+                typing.remove();
+                const errorMessages = {
+                    ahana: "omg sorry, my brain just glitched for a sec lol. can you say that again? 😅",
+                    anjali: "Sorry about that, seems like I had a little hiccup. Could you repeat what you said?",
+                    aditya: "Yo my bad, something went off on my end. Say that again?",
+                    ayan: "lol brb, had a momentary glitch bro. type it again?"
+                };
+                addMessage(errorMessages[state.selectedAI] || 'sorry, something went wrong. try again?', 'ai');
+                document.getElementById('sendBtn').disabled = false;
+            }
+        }
+        
+        function addMessage(text, sender, save = true) {
+            const messages = document.getElementById('messages');
+            const div = document.createElement('div');
+            div.className = `message-group ${sender}`;
+            const formatted = text.split('\n\n').map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
+            div.innerHTML = `<div class="message-bubble">${formatted}</div>`;
+            messages.appendChild(div);
+            messages.scrollTop = messages.scrollHeight;
+            
+            if (save) {
+                state.conversations[state.selectedAI].messages.push({ 
+                    text, 
+                    sender, 
+                    timestamp: Date.now() 
+                });
+                saveState();
+            }
+        }
+        
+        function showTyping() {
+            const messages = document.getElementById('messages');
+            const div = document.createElement('div');
+            div.className = 'message-group ai';
+            div.innerHTML = `
+                <div class="typing active">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            `;
+            messages.appendChild(div);
+            messages.scrollTop = messages.scrollHeight;
+            return div;
+        }
+        
+        // ==================== PAYWALL ====================
+        
+        function showPaywall() {
+            renderPricingCards();
+            document.getElementById('paywall').classList.add('active');
+        }
+        
+        function hidePaywall() {
+            document.getElementById('paywall').classList.remove('active');
+        }
+        
+        function renderPricingCards() {
+            const container = document.getElementById('pricingCards');
+            container.innerHTML = pricingTiers.map(tier => `
+                <div class="price-card ${tier.recommended ? 'recommended' : ''} ${selectedTier === tier.id ? 'selected' : ''}" 
+                     onclick="selectTier('${tier.id}')">
+                    ${tier.recommended ? '<div class="recommended-badge">MOST POPULAR</div>' : ''}
+                    <div class="price-amount">${tier.display}</div>
+                    <div class="price-period">${tier.period}</div>
+                    <ul class="price-features">
+                        ${tier.features.map(f => `<li>${f}</li>`).join('')}
+                    </ul>
+                </div>
+            `).join('');
+        }
+        
+        function selectTier(tierId) {
+            selectedTier = tierId;
+            renderPricingCards();
+        }
+        
+        function handleSubscribe() {
+            const tier = pricingTiers.find(t => t.id === selectedTier);
+            
+            // DEMO MODE
+            alert(`💳 Razorpay Integration\n\nIn production, this will open Razorpay payment for ${tier.display}${tier.period}.\n\nDemo: Activating ${selectedTier} subscription...`);
+            state.subscription = selectedTier;
+            hidePaywall();
+            updateIndicator();
+            renderHome();
+            saveState();
+            
+            // PRODUCTION CODE (Uncomment when Razorpay key is added):
+            /*
+            const options = {
+                key: RAZORPAY_KEY,
+                amount: tier.amount,
+                currency: 'INR',
+                name: 'Mitr',
+                description: `${tier.display}${tier.period} subscription`,
+                image: 'https://yourdomain.com/logo.png',
+                handler: function(response) {
+                    state.subscription = selectedTier;
+                    hidePaywall();
+                    updateIndicator();
+                    renderHome();
+                    saveState();
+                    alert('🎉 Welcome to Mitr ' + (selectedTier === 'pro' ? 'Pro' : 'Basic') + '!');
+                },
+                prefill: {
+                    name: state.user.name,
+                    email: state.user.email || '',
+                    contact: state.user.phone || ''
+                },
+                theme: {
+                    color: '#6366F1'
+                }
+            };
+            
+            const rzp = new Razorpay(options);
+            rzp.open();
+            */
+        }
+        
+        // ==================== STATE MANAGEMENT ====================
+        
+        function saveState() {
+            localStorage.setItem('mitr_state', JSON.stringify(state));
+        }
+        
+        function loadState() {
+            const saved = localStorage.getItem('mitr_state');
+            if (saved) {
+                try {
+                    Object.assign(state, JSON.parse(saved));
+                } catch(e) {
+                    console.error('Error loading state:', e);
+                }
+            }
+        }
+        
+        // Auto-resize textarea
+        const textarea = document.getElementById('messageInput');
+        if (textarea) {
+            textarea.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+            });
+        }
+    </script>
+</body>
+</html>
