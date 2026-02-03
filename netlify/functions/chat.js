@@ -2,7 +2,7 @@
 // Netlify Serverless Function - Proxies requests to Anthropic Claude API
 // API key stored as Netlify Environment Variable (never exposed to client)
 
-const fetch = require('node-fetch');
+// fetch is built-in on Node 18+ (no need for node-fetch)
 
 exports.handler = async function(event) {
   // Only allow POST
