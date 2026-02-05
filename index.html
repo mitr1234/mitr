@@ -3,1984 +3,968 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mitr - Your AI Companion</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Supabase SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
-    <!-- Razorpay SDK -->
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-    
+    <title>Mitr - Your AI Companion Who Truly Gets You</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
-        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         :root {
-            --primary: #6366F1;
-            --primary-dark: #4F46E5;
-            --accent: #8B5CF6;
-            --text: #0F172A;
-            --text-secondary: #475569;
-            --text-tertiary: #94A3B8;
-            --bg: #FFFFFF;
-            --bg-secondary: #F8FAFC;
-            --border: #E2E8F0;
-            --success: #10B981;
-            --warning: #F59E0B;
-            --error: #EF4444;
+            --midnight: #0a0e27;
+            --deep-blue: #1a1f3a;
+            --accent-blue: #3d5af1;
+            --soft-blue: #7c93f7;
+            --warm-peach: #ff9a76;
+            --cream: #fef8f3;
+            --text-dark: #0a0e27;
+            --text-muted: #6b7280;
         }
-        
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
-            background: var(--bg-secondary);
-            color: var(--text);
-            line-height: 1.5;
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--cream);
+            color: var(--text-dark);
+            line-height: 1.6;
+            overflow-x: hidden;
         }
-        
-        .app {
-            max-width: 500px;
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(254, 248, 243, 0.9);
+            backdrop-filter: blur(20px);
+            z-index: 1000;
+            border-bottom: 1px solid rgba(61, 90, 241, 0.1);
+        }
+
+        .nav-container {
+            max-width: 1400px;
             margin: 0 auto;
-            min-height: 100vh;
-            background: var(--bg);
-            box-shadow: 0 0 60px rgba(0,0,0,0.08);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Syne', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--accent-blue);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-dark);
+            font-weight: 500;
+            font-size: 15px;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-blue);
+        }
+
+        .btn-primary {
+            background: var(--accent-blue);
+            color: white;
+            padding: 12px 28px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-block;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .btn-primary:hover {
+            background: var(--deep-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(61, 90, 241, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--accent-blue);
+            border: 2px solid var(--accent-blue);
+            padding: 12px 28px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-block;
+            font-size: 15px;
+        }
+
+        .btn-secondary:hover {
+            background: var(--accent-blue);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Hero Section */
+        .hero {
+            margin-top: 80px;
+            padding: 100px 40px 120px;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
+        }
+
+        .hero-content h1 {
+            font-family: 'Syne', sans-serif;
+            font-size: 68px;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            color: var(--midnight);
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .hero-content .gradient-text {
+            background: linear-gradient(135deg, var(--accent-blue), var(--warm-peach));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-content p {
+            font-size: 20px;
+            color: var(--text-muted);
+            margin-bottom: 40px;
+            line-height: 1.7;
+            animation: fadeInUp 0.8s ease-out 0.2s backwards;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 20px;
+            animation: fadeInUp 0.8s ease-out 0.4s backwards;
+        }
+
+        .hero-visual {
             position: relative;
+            animation: fadeInUp 0.8s ease-out 0.3s backwards;
         }
-        
-        .screen {
-            display: none;
-            min-height: 100vh;
+
+        .hero-card {
+            background: white;
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(10, 14, 39, 0.1);
+            border: 1px solid rgba(61, 90, 241, 0.1);
         }
-        
-        .screen.active {
+
+        .chat-preview {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .chat-bubble {
+            max-width: 80%;
+            padding: 16px 20px;
+            border-radius: 16px;
+            font-size: 15px;
+            line-height: 1.5;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .chat-bubble.user {
+            background: var(--accent-blue);
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 4px;
+        }
+
+        .chat-bubble.ai {
+            background: #f3f4f6;
+            color: var(--text-dark);
+            margin-right: auto;
+            border-bottom-left-radius: 4px;
+        }
+
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 16px 20px;
+            background: #f3f4f6;
+            border-radius: 16px;
+            width: fit-content;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background: var(--text-muted);
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out;
+        }
+
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 120px 40px;
+            background: white;
+        }
+
+        .section-header {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto 80px;
+        }
+
+        .section-header h2 {
+            font-family: 'Syne', sans-serif;
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--midnight);
+        }
+
+        .section-header p {
+            font-size: 18px;
+            color: var(--text-muted);
+            line-height: 1.7;
+        }
+
+        .features-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+        }
+
+        .feature-card {
+            padding: 40px;
+            border-radius: 20px;
+            background: var(--cream);
+            border: 1px solid rgba(61, 90, 241, 0.1);
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(61, 90, 241, 0.15);
+        }
+
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
             display: block;
         }
-        
-        /* Landing Page */
-        .landing {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 60px 32px 40px;
+
+        .feature-card h3 {
+            font-family: 'Syne', sans-serif;
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--midnight);
         }
-        
-        .landing-content {
-            flex: 1;
+
+        .feature-card p {
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* How It Works */
+        .how-it-works {
+            padding: 120px 40px;
+            background: var(--deep-blue);
+            color: white;
+        }
+
+        .how-it-works .section-header h2,
+        .how-it-works .section-header p {
+            color: white;
+        }
+
+        .steps {
+            max-width: 1000px;
+            margin: 0 auto;
             display: flex;
             flex-direction: column;
+            gap: 60px;
+        }
+
+        .step {
+            display: grid;
+            grid-template-columns: 100px 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+
+        .step-number {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: var(--accent-blue);
+            display: flex;
+            align-items: center;
             justify-content: center;
+            font-family: 'Syne', sans-serif;
+            font-size: 36px;
+            font-weight: 700;
         }
-        
-        .logo {
+
+        .step-content h3 {
+            font-family: 'Syne', sans-serif;
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .step-content p {
+            font-size: 17px;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.7;
+        }
+
+        /* Companions */
+        .companions {
+            padding: 120px 40px;
+            background: var(--cream);
+        }
+
+        .companions-grid {
+            max-width: 1200px;
+            margin: 60px auto 0;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 30px;
+        }
+
+        .companion-card {
+            background: white;
+            border-radius: 20px;
+            padding: 32px;
             text-align: center;
-            margin-bottom: 48px;
+            border: 1px solid rgba(61, 90, 241, 0.1);
+            transition: all 0.3s;
         }
-        
-        .logo-icon {
+
+        .companion-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(61, 90, 241, 0.15);
+        }
+
+        .companion-avatar {
             width: 80px;
             height: 80px;
-            background: rgba(255,255,255,0.15);
-            backdrop-filter: blur(20px);
-            border-radius: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-blue), var(--soft-blue));
             margin: 0 auto 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 40px;
-            border: 1px solid rgba(255,255,255,0.2);
+            font-size: 36px;
         }
-        
-        .app-name {
-            font-size: 3rem;
-            font-weight: 700;
-            color: white;
-            margin-bottom: 8px;
-            letter-spacing: -1px;
-        }
-        
-        .app-tagline {
-            font-size: 1.1rem;
-            color: rgba(255,255,255,0.9);
-        }
-        
-        .value-props {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            margin-bottom: 40px;
-        }
-        
-        .value-item {
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255,255,255,0.15);
-            padding: 20px;
-            border-radius: 16px;
-            color: white;
-        }
-        
-        .value-title {
-            font-size: 1rem;
+
+        .companion-card h3 {
+            font-family: 'Syne', sans-serif;
+            font-size: 20px;
             font-weight: 600;
-            margin-bottom: 4px;
-        }
-        
-        .value-desc {
-            font-size: 0.9rem;
-            opacity: 0.85;
-        }
-        
-        .cta-button {
-            width: 100%;
-            background: white;
-            color: #667eea;
-            border: none;
-            padding: 18px;
-            font-size: 1.05rem;
-            font-weight: 600;
-            border-radius: 14px;
-            cursor: pointer;
-            transition: transform 0.2s;
-            font-family: inherit;
-        }
-        
-        .cta-button:active {
-            transform: scale(0.98);
-        }
-        
-        .free-badge {
-            text-align: center;
-            color: rgba(255,255,255,0.9);
-            margin-top: 16px;
-            font-size: 0.9rem;
-        }
-        
-        /* Auth Screen */
-        .auth {
-            padding: 60px 32px;
-        }
-        
-        .auth-header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-        
-        .auth-title {
-            font-size: 1.8rem;
-            font-weight: 700;
             margin-bottom: 8px;
         }
-        
-        .auth-subtitle {
-            color: var(--text-secondary);
-        }
-        
-        .auth-methods {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-bottom: 32px;
-        }
-        
-        .auth-btn {
-            width: 100%;
-            padding: 16px;
-            border: 2px solid var(--border);
-            background: white;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 500;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            transition: all 0.2s;
-            font-family: inherit;
-        }
-        
-        .auth-btn:hover {
-            border-color: var(--primary);
-            background: var(--bg-secondary);
-        }
-        
-        .divider {
-            text-align: center;
-            color: var(--text-tertiary);
-            margin: 24px 0;
-            position: relative;
-        }
-        
-        .divider::before,
-        .divider::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            width: 40%;
-            height: 1px;
-            background: var(--border);
-        }
-        
-        .divider::before { left: 0; }
-        .divider::after { right: 0; }
-        
-        .input-group {
-            margin-bottom: 16px;
-        }
-        
-        .input-label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: var(--text);
-        }
-        
-        .input-field {
-            width: 100%;
-            padding: 14px 16px;
-            border: 2px solid var(--border);
-            border-radius: 10px;
-            font-size: 1rem;
-            font-family: inherit;
-            transition: border-color 0.2s;
-        }
-        
-        .input-field:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-        
-        .btn-primary {
-            width: 100%;
-            padding: 16px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            font-family: inherit;
-            transition: background 0.2s;
-        }
-        
-        .btn-primary:hover {
-            background: var(--primary-dark);
-        }
-        
-        .btn-primary:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        
-        /* Profile Setup */
-        .profile-setup {
-            padding: 32px;
-        }
-        
-        .setup-header {
-            margin-bottom: 32px;
-        }
-        
-        .setup-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-        
-        .setup-subtitle {
-            color: var(--text-secondary);
-        }
-        
-        .avatar-upload {
-            width: 120px;
-            height: 120px;
-            margin: 0 auto 24px;
-            position: relative;
-        }
-        
-        .avatar-preview {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            background: var(--bg-secondary);
-            border: 3px dashed var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 3rem;
-            cursor: pointer;
-            overflow: hidden;
-        }
-        
-        .avatar-preview img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .avatar-upload input {
-            display: none;
-        }
-        
-        .problem-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 24px;
-        }
-        
-        .problem-tag {
-            padding: 8px 16px;
-            border: 2px solid var(--border);
-            border-radius: 20px;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            background: white;
-        }
-        
-        .problem-tag.selected {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-        
-        .relationship-modes {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin-bottom: 24px;
-        }
-        
-        .mode-option {
-            padding: 20px 16px;
-            border: 2px solid var(--border);
-            border-radius: 16px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            background: white;
-        }
-        
-        .mode-option:hover {
-            border-color: var(--primary);
-            transform: translateY(-2px);
-        }
-        
-        .mode-option.selected {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-        
-        .mode-icon {
-            font-size: 32px;
-            margin-bottom: 8px;
-        }
-        
-        .mode-label {
-            font-weight: 600;
-            margin-bottom: 4px;
-            font-size: 0.95rem;
-        }
-        
-        .mode-desc {
-            font-size: 0.8rem;
-            opacity: 0.7;
-        }
-        
-        .mode-option.selected .mode-desc {
-            opacity: 0.9;
-        }
-        
-        /* Home Screen */
-        .home-container {
-            min-height: 100vh;
-            background: var(--bg-secondary);
-        }
-        
-        .home-header {
-            background: white;
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 1px solid var(--border);
-        }
-        
-        .user-profile {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .user-avatar {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            overflow: hidden;
-        }
-        
-        .user-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .user-info h2 {
-            font-size: 1.1rem;
-            font-weight: 600;
-        }
-        
-        .user-info p {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-        }
-        
-        .home-content {
-            padding: 24px 20px;
-        }
-        
-        .section-title {
-            font-size: 1.3rem;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-        
-        .section-desc {
-            color: var(--text-secondary);
-            margin-bottom: 20px;
-        }
-        
-        .companions-grid {
-            display: grid;
-            gap: 12px;
-            margin-bottom: 32px;
-        }
-        
-        .companion-card {
-            background: white;
-            border: 2px solid var(--border);
-            border-radius: 16px;
-            padding: 16px;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .companion-card:hover {
-            border-color: var(--primary);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(99,102,241,0.15);
-        }
-        
-        .companion-avatar {
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            flex-shrink: 0;
-        }
-        
-        .companion-details {
-            flex: 1;
-        }
-        
-        .companion-details h3 {
-            font-size: 1rem;
-            font-weight: 600;
-            margin-bottom: 2px;
-        }
-        
-        .companion-details p {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-        }
-        
-        .companion-badge {
+
+        .companion-tag {
+            display: inline-block;
             padding: 4px 12px;
+            background: rgba(61, 90, 241, 0.1);
+            color: var(--accent-blue);
             border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            white-space: nowrap;
-        }
-        
-        .companion-badge.free {
-            background: var(--success);
-            color: white;
-        }
-        
-        .companion-badge.used {
-            background: var(--bg-secondary);
-            color: var(--text-tertiary);
-        }
-        
-        .benefits-section {
-            margin-bottom: 32px;
-        }
-        
-        .benefits-list {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-        }
-        
-        .benefit-card {
-            background: white;
-            padding: 20px 16px;
-            border-radius: 12px;
-            text-align: center;
-        }
-        
-        .benefit-icon {
-            font-size: 2rem;
-            margin-bottom: 8px;
-        }
-        
-        .benefit-card h4 {
-            font-size: 0.95rem;
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-        
-        .benefit-card p {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            line-height: 1.4;
-        }
-        
-        /* Chat Screen */
-        .chat {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-        }
-        
-        .chat-header {
-            padding: 16px 20px;
-            background: var(--bg);
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .chat-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-        }
-        
-        .chat-info h3 {
-            font-size: 1rem;
-            font-weight: 600;
-        }
-        
-        .chat-status {
-            font-size: 0.75rem;
-            color: var(--success);
-        }
-        
-        .icon-btn {
-            width: 36px;
-            height: 36px;
-            border: none;
-            background: var(--bg-secondary);
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-        }
-        
-        .messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            background: var(--bg-secondary);
-        }
-        
-        .message-group {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            margin-bottom: 16px;
-        }
-        
-        .message-group.user {
-            align-items: flex-end;
-        }
-        
-        .message-bubble {
-            max-width: 75%;
-            padding: 12px 16px;
-            border-radius: 18px;
-            font-size: 0.95rem;
-            line-height: 1.5;
-        }
-        
-        .message-group.user .message-bubble {
-            background: var(--primary);
-            color: white;
-            border-bottom-right-radius: 4px;
-        }
-        
-        .message-group.ai .message-bubble {
-            background: white;
-            color: var(--text);
-            border-bottom-left-radius: 4px;
-            border: 1px solid var(--border);
-        }
-        
-        .typing {
-            display: none;
-            padding: 12px 16px;
-            background: white;
-            border: 1px solid var(--border);
-            border-radius: 18px;
-            border-bottom-left-radius: 4px;
-            max-width: 60px;
-            gap: 4px;
-        }
-        
-        .typing.active {
-            display: flex;
-        }
-        
-        .typing-dot {
-            width: 8px;
-            height: 8px;
-            background: var(--text-tertiary);
-            border-radius: 50%;
-            animation: typing 1.4s ease-in-out infinite;
-        }
-        
-        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
-        
-        @keyframes typing {
-            0%, 60%, 100% { opacity: 0.3; transform: scale(0.8); }
-            30% { opacity: 1; transform: scale(1); }
-        }
-        
-        .input-area {
-            padding: 16px 20px;
-            background: var(--bg);
-            border-top: 1px solid var(--border);
-            display: flex;
-            gap: 12px;
-            align-items: flex-end;
-        }
-        
-        .message-input {
-            flex: 1;
-            border: 2px solid var(--border);
-            border-radius: 22px;
-            padding: 10px 16px;
-            font-size: 0.95rem;
-            font-family: inherit;
-            resize: none;
-            max-height: 100px;
-        }
-        
-        .message-input:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-        
-        .send-btn {
-            width: 40px;
-            height: 40px;
-            background: var(--primary);
-            border: none;
-            border-radius: 50%;
-            color: white;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-        
-        .send-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        
-        .free-messages-indicator {
-            padding: 12px 20px;
-            background: var(--bg);
-            border-top: 1px solid var(--border);
-            text-align: center;
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-        }
-        
-        .free-messages-indicator.warning {
-            background: rgba(245, 158, 11, 0.1);
-            color: var(--warning);
-            font-weight: 600;
-        }
-        
-        /* Paywall */
-        .paywall {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(10px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            padding: 20px;
-        }
-        
-        .paywall.active {
-            display: flex;
-        }
-        
-        .paywall-content {
-            background: white;
-            border-radius: 24px;
-            padding: 32px 24px;
-            max-width: 400px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-        
-        .paywall-header {
-            text-align: center;
-            margin-bottom: 24px;
-        }
-        
-        .paywall-icon {
-            font-size: 3rem;
-            margin-bottom: 16px;
-        }
-        
-        .paywall-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-        
-        .paywall-desc {
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-        }
-        
-        .pricing-cards {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-bottom: 24px;
-        }
-        
-        .price-card {
-            border: 2px solid var(--border);
-            border-radius: 16px;
-            padding: 20px;
-            cursor: pointer;
-            transition: all 0.2s;
-            position: relative;
-        }
-        
-        .price-card:hover {
-            border-color: var(--primary);
-        }
-        
-        .price-card.selected {
-            border-color: var(--primary);
-            background: linear-gradient(135deg, rgba(99,102,241,0.05), rgba(139,92,246,0.05));
-        }
-        
-        .price-card.recommended {
-            border-color: var(--primary);
-        }
-        
-        .recommended-badge {
-            position: absolute;
-            top: -10px;
-            right: 20px;
-            background: var(--primary);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-        
-        .price-amount {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 4px;
-        }
-        
-        .price-period {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
+            font-size: 13px;
+            font-weight: 500;
             margin-bottom: 12px;
         }
-        
-        .price-features {
+
+        .companion-card p {
+            color: var(--text-muted);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* Pricing */
+        .pricing {
+            padding: 120px 40px;
+            background: white;
+        }
+
+        .pricing-grid {
+            max-width: 1000px;
+            margin: 60px auto 0;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 40px;
+        }
+
+        .pricing-card {
+            background: var(--cream);
+            border-radius: 24px;
+            padding: 48px;
+            border: 2px solid rgba(61, 90, 241, 0.1);
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .pricing-card.featured {
+            background: var(--deep-blue);
+            color: white;
+            border-color: var(--accent-blue);
+            transform: scale(1.05);
+        }
+
+        .pricing-card.featured .pricing-tag {
+            background: var(--warm-peach);
+        }
+
+        .pricing-tag {
+            position: absolute;
+            top: -16px;
+            right: 40px;
+            background: var(--accent-blue);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .pricing-card h3 {
+            font-family: 'Syne', sans-serif;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .pricing-card .price {
+            font-family: 'Syne', sans-serif;
+            font-size: 52px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .pricing-card .price span {
+            font-size: 20px;
+            font-weight: 400;
+        }
+
+        .pricing-card .billing {
+            color: var(--text-muted);
+            margin-bottom: 32px;
+            font-size: 15px;
+        }
+
+        .pricing-card.featured .billing {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .pricing-features {
+            list-style: none;
+            margin-bottom: 32px;
+        }
+
+        .pricing-features li {
+            padding: 12px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 15px;
+        }
+
+        .pricing-features li::before {
+            content: "✓";
+            color: var(--accent-blue);
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .pricing-card.featured .pricing-features li::before {
+            color: var(--warm-peach);
+        }
+
+        /* CTA Section */
+        .cta {
+            padding: 120px 40px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--deep-blue));
+            color: white;
+            text-align: center;
+        }
+
+        .cta h2 {
+            font-family: 'Syne', sans-serif;
+            font-size: 52px;
+            font-weight: 700;
+            margin-bottom: 24px;
+        }
+
+        .cta p {
+            font-size: 20px;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+
+        .cta .btn-primary {
+            background: white;
+            color: var(--accent-blue);
+            font-size: 18px;
+            padding: 16px 40px;
+        }
+
+        .cta .btn-primary:hover {
+            background: var(--cream);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Footer */
+        footer {
+            background: var(--midnight);
+            color: white;
+            padding: 60px 40px 40px;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 60px;
+            margin-bottom: 40px;
+        }
+
+        .footer-brand h3 {
+            font-family: 'Syne', sans-serif;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: var(--soft-blue);
+        }
+
+        .footer-brand p {
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.7;
+        }
+
+        .footer-links h4 {
+            font-family: 'Syne', sans-serif;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .footer-links ul {
             list-style: none;
         }
-        
-        .price-features li {
-            padding: 4px 0;
-            font-size: 0.85rem;
-            color: var(--text-secondary);
+
+        .footer-links li {
+            margin-bottom: 12px;
         }
-        
-        .price-features li::before {
-            content: "✓ ";
-            color: var(--success);
-            font-weight: 700;
-            margin-right: 4px;
-        }
-        
-        .subscribe-btn {
-            width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            color: white;
-            border: none;
-            border-radius: 14px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            font-family: inherit;
-        }
-        
-        .try-another {
-            text-align: center;
-            margin-top: 16px;
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-        }
-        
-        .try-another a {
-            color: var(--primary);
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.7);
             text-decoration: none;
-            font-weight: 600;
+            transition: color 0.3s;
         }
-        
-        /* Utilities */
-        .hidden { display: none; }
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
+
+        .footer-links a:hover {
+            color: var(--soft-blue);
         }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+
+        .footer-bottom {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding-top: 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes bounce {
+            0%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-8px);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .hero {
+                grid-template-columns: 1fr;
+                gap: 60px;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .companions-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-container {
+                padding: 16px 20px;
+            }
+
+            .nav-links {
+                gap: 20px;
+            }
+
+            .hero {
+                padding: 60px 20px 80px;
+            }
+
+            .hero-content h1 {
+                font-size: 42px;
+            }
+
+            .hero-content p {
+                font-size: 17px;
+            }
+
+            .hero-cta {
+                flex-direction: column;
+            }
+
+            .section-header h2 {
+                font-size: 36px;
+            }
+
+            .companions-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .steps {
+                gap: 40px;
+            }
+
+            .step {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .cta h2 {
+                font-size: 36px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="app">
-        <!-- LANDING SCREEN -->
-        <div class="screen active" id="landingScreen">
-            <div class="landing">
-                <div class="landing-content">
-                    <div class="logo">
-                        <div class="logo-icon">💭</div>
-                        <h1 class="app-name">Mitr</h1>
-                        <p class="app-tagline">Your AI companion who truly gets you</p>
-                    </div>
-
-                    <div class="value-props">
-                        <div class="value-item">
-                            <div class="value-title">Choose your companion</div>
-                            <div class="value-desc">Talk to AI personalities that match your vibe - Gen Z or Millennial</div>
-                        </div>
-                        <div class="value-item">
-                            <div class="value-title">Actually understands you</div>
-                            <div class="value-desc">Indian relationships, family drama, cultural context - we get it all</div>
-                        </div>
-                        <div class="value-item">
-                            <div class="value-title">Always here</div>
-                            <div class="value-desc">2 AM or 2 PM, your Mitr is always ready to listen</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div>
-                    <button class="cta-button" onclick="showAuth()">Get Started</button>
-                    <div class="free-badge">Try 3 messages FREE with each companion</div>
-                </div>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="#" class="logo">Mitr</a>
+            <div class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#how-it-works">How It Works</a>
+                <a href="#pricing">Pricing</a>
+                <a href="/app.html" class="btn-primary">Get Started</a>
             </div>
         </div>
+    </nav>
 
-        <!-- AUTH SCREEN -->
-        <div class="screen" id="authScreen">
-            <div class="auth">
-                <div class="auth-header">
-                    <h2 class="auth-title">Welcome to Mitr</h2>
-                    <p class="auth-subtitle">Sign in to start talking</p>
-                </div>
-
-                <div class="auth-methods">
-                    <button class="auth-btn" onclick="authWithGoogle()" id="googleAuthBtn">
-                        <span>🔍</span>
-                        <span>Continue with Google</span>
-                    </button>
-                    <button class="auth-btn" onclick="showPhoneAuth()">
-                        <span>📱</span>
-                        <span>Continue with Phone</span>
-                    </button>
-                    <button class="auth-btn" onclick="showEmailAuth()">
-                        <span>✉️</span>
-                        <span>Continue with Email</span>
-                    </button>
-                </div>
-
-                <div id="phoneAuth" class="hidden">
-                    <div class="divider">OR</div>
-                    <div class="input-group">
-                        <label class="input-label">Phone Number</label>
-                        <input type="tel" class="input-field" placeholder="+91 98765 43210" id="phoneInput">
-                    </div>
-                    <div id="recaptcha-container"></div>
-                    <button class="btn-primary" onclick="sendOTP()" id="sendOTPBtn">Send OTP</button>
-                </div>
-
-                <div id="otpVerify" class="hidden">
-                    <div class="input-group">
-                        <label class="input-label">Enter OTP</label>
-                        <input type="text" class="input-field" placeholder="123456" id="otpInput" maxlength="6">
-                    </div>
-                    <button class="btn-primary" onclick="verifyOTP()" id="verifyOTPBtn">Verify & Continue</button>
-                </div>
-
-                <div id="emailAuth" class="hidden">
-                    <div class="divider">OR</div>
-                    <div class="input-group">
-                        <label class="input-label">Email</label>
-                        <input type="email" class="input-field" placeholder="you@example.com" id="emailInput">
-                    </div>
-                    <div class="input-group">
-                        <label class="input-label">Password</label>
-                        <input type="password" class="input-field" placeholder="••••••••" id="passwordInput">
-                    </div>
-                    <button class="btn-primary" onclick="authWithEmail()" id="emailAuthBtn">Continue</button>
-                </div>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Your AI companion who <span class="gradient-text">truly gets you</span></h1>
+            <p>Talk about anything—relationships, family, career, or just life. Mitr understands Indian culture, speaks your language, and is here 24/7 with zero judgment.</p>
+            <div class="hero-cta">
+                <a href="/app.html" class="btn-primary">Start Talking Now</a>
+                <a href="#how-it-works" class="btn-secondary">See How It Works</a>
             </div>
         </div>
-
-        <!-- PROFILE SETUP -->
-        <div class="screen" id="profileSetupScreen">
-            <div class="profile-setup">
-                <div class="setup-header">
-                    <h2 class="setup-title">Tell us about yourself</h2>
-                    <p class="setup-subtitle">This helps your Mitr understand you better</p>
-                </div>
-
-                <div class="avatar-upload" onclick="document.getElementById('avatarInput').click()">
-                    <div class="avatar-preview" id="avatarPreview">👤</div>
-                    <input type="file" id="avatarInput" accept="image/*" onchange="previewAvatar(event)">
-                </div>
-
-                <div class="input-group">
-                    <label class="input-label">Your Name</label>
-                    <input type="text" class="input-field" placeholder="What should we call you?" id="nameInput">
-                </div>
-
-                <div class="input-group">
-                    <label class="input-label">About You (Optional)</label>
-                    <textarea class="input-field" rows="3" placeholder="Tell your Mitr a bit about yourself..." id="bioInput"></textarea>
-                </div>
-
-                <div class="input-group">
-                    <label class="input-label">How would you like Mitr to be?</label>
-                    <div class="relationship-modes">
-                        <div class="mode-option" data-mode="friend" onclick="selectRelationshipMode(this, 'friend')">
-                            <div class="mode-icon">🤝</div>
-                            <div class="mode-label">Friend</div>
-                            <div class="mode-desc">Supportive & understanding</div>
-                        </div>
-                        <div class="mode-option" data-mode="partner" onclick="selectRelationshipMode(this, 'partner')">
-                            <div class="mode-icon">💕</div>
-                            <div class="mode-label">Partner</div>
-                            <div class="mode-desc">Caring & affectionate</div>
-                        </div>
-                        <div class="mode-option" data-mode="companion" onclick="selectRelationshipMode(this, 'companion')">
-                            <div class="mode-icon">✨</div>
-                            <div class="mode-label">Companion</div>
-                            <div class="mode-desc">Whatever you need</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="input-group">
-                    <label class="input-label">Preferred Language</label>
-                    <select class="input-field" id="languageSelect">
-                        <option value="en">English</option>
-                        <option value="hi">हिंदी (Hindi)</option>
-                        <option value="gu">ગુજરાતી (Gujarati)</option>
-                        <option value="mr">मराठी (Marathi)</option>
-                        <option value="ta">தமிழ் (Tamil)</option>
-                    </select>
-                </div>
-
-                <div class="input-group">
-                    <label class="input-label">What brings you here? (Select all that apply)</label>
-                    <div class="problem-tags" id="problemTags"></div>
-                </div>
-
-                <button class="btn-primary" onclick="saveProfile()">Continue</button>
-            </div>
-        </div>
-
-        <!-- HOME SCREEN -->
-        <div class="screen" id="homeScreen">
-            <div class="home-container">
-                <div class="home-header">
-                    <div class="user-profile">
-                        <div class="user-avatar" id="homeAvatar">👤</div>
-                        <div class="user-info">
-                            <h2 id="userName">Welcome!</h2>
-                            <p id="userPlan">Free Plan</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="home-content">
-                    <h2 class="section-title">Choose Your Mitr</h2>
-                    <p class="section-desc">Pick the companion that resonates with you. Try all 4 free!</p>
-                    
-                    <div class="companions-grid" id="companionsGrid"></div>
-
-                    <div class="benefits-section">
-                        <h3 class="section-title">Why Mitr?</h3>
-                        <div class="benefits-list">
-                            <div class="benefit-card">
-                                <div class="benefit-icon">💬</div>
-                                <h4>Always Available</h4>
-                                <p>24/7 support whenever you need</p>
-                            </div>
-                            <div class="benefit-card">
-                                <div class="benefit-icon">🔒</div>
-                                <h4>Private</h4>
-                                <p>100% confidential conversations</p>
-                            </div>
-                            <div class="benefit-card">
-                                <div class="benefit-icon">🎯</div>
-                                <h4>Understands You</h4>
-                                <p>Cultural context that matters</p>
-                            </div>
-                            <div class="benefit-card">
-                                <div class="benefit-icon">💝</div>
-                                <h4>No Judgment</h4>
-                                <p>Safe space to share anything</p>
-                            </div>
-                        </div>
+        <div class="hero-visual">
+            <div class="hero-card">
+                <div class="chat-preview">
+                    <div class="chat-bubble user">i just feel stuck, you know? like everyone's moving forward and i'm just... here</div>
+                    <div class="chat-bubble ai">that feeling sucks. but you're not stuck—you're figuring things out. what does "moving forward" even mean to you?</div>
+                    <div class="chat-bubble user">idk, getting a job, being in a relationship, having my life together</div>
+                    <div class="typing-indicator">
+                        <span></span>
+                        <span></span>
+                        <span></span>
                     </div>
                 </div>
             </div>
         </div>
+    </section>
 
-        <!-- CHAT SCREEN -->
-        <div class="screen" id="chatScreen">
-            <div class="chat">
-                <div class="chat-header">
-                    <div class="header-left">
-                        <button class="icon-btn" onclick="goHome()">←</button>
-                        <div class="chat-avatar" id="chatAvatar">💭</div>
-                        <div class="chat-info">
-                            <h3 id="chatName">Mitr</h3>
-                            <div class="chat-status">online</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="messages" id="messages"></div>
-
-                <div class="input-area">
-                    <textarea 
-                        class="message-input" 
-                        id="messageInput" 
-                        placeholder="Type something..."
-                        rows="1"
-                        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage();}"
-                    ></textarea>
-                    <button class="send-btn" id="sendBtn" onclick="sendMessage()">➤</button>
-                </div>
-                <div id="freeMessagesIndicator" class="free-messages-indicator" style="display: none;"></div>
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="section-header">
+            <h2>Built for you, not algorithms</h2>
+            <p>Mitr isn't here to optimize your productivity or sell you courses. It's here to listen, understand, and help you navigate whatever you're going through.</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <span class="feature-icon">🌙</span>
+                <h3>Always Available</h3>
+                <p>2 AM thoughts? Mid-breakup crisis? Mitr is here 24/7, whenever you need to talk.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">🇮🇳</span>
+                <h3>Gets Indian Culture</h3>
+                <p>Family pressure, arranged marriage stress, career expectations—Mitr understands the context you live in.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">🔒</span>
+                <h3>Completely Private</h3>
+                <p>Your conversations stay between you and Mitr. No human will ever read your chats.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">💬</span>
+                <h3>No Judgment Ever</h3>
+                <p>Say what you really think without fear of being judged, lectured, or misunderstood.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">🎯</span>
+                <h3>Actually Helpful</h3>
+                <p>Not generic advice. Real perspectives based on what you're actually dealing with.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">💙</span>
+                <h3>Human-like Conversations</h3>
+                <p>Talks like a friend, not a robot. Short messages, natural flow, genuine understanding.</p>
             </div>
         </div>
+    </section>
 
-        <!-- PAYWALL -->
-        <div class="paywall" id="paywall">
-            <div class="paywall-content">
-                <div class="paywall-header">
-                    <div class="paywall-icon">✨</div>
-                    <h2 class="paywall-title" id="paywallTitle">Keep Going!</h2>
-                    <p class="paywall-desc" id="paywallDesc">You've used your free messages with this companion</p>
+    <!-- How It Works -->
+    <section class="how-it-works" id="how-it-works">
+        <div class="section-header">
+            <h2>How Mitr Works</h2>
+            <p>Start talking in under 60 seconds. No complicated setup, no personality tests—just real conversation.</p>
+        </div>
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3>Pick Your Companion</h3>
+                    <p>Choose from 4 AI companions—each with their own personality and conversation style. Find the one you vibe with.</p>
                 </div>
-
-                <div class="pricing-cards" id="pricingCards"></div>
-
-                <button class="subscribe-btn" onclick="handleSubscribe()">Subscribe Now</button>
-                
-                <div class="try-another">
-                    Or <a href="#" onclick="goHome(); hidePaywall(); return false;">try another companion</a>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3>Start Talking</h3>
+                    <p>Just say what's on your mind. No need to explain context or backstory—Mitr will ask if needed.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h3>Keep Coming Back</h3>
+                    <p>Mitr remembers your conversations, understands your situation, and builds on what you've shared before.</p>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 
-    <script>
-        // ==================== CONFIGURATION ====================
-        
-        // IMPORTANT: Replace these with your actual credentials before deploying!
-        
-        // Supabase Configuration
-        const SUPABASE_URL = 'https://sbozriewiuczeeikhlgb.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNib3pyaWV3aXVjemVlaWtobGdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAxODU4MDksImV4cCI6MjA4NTc2MTgwOX0.kpsZoJgVhp4Vv-DLjSf3UtNtGb8pV2B5PhHOQQKYfVg';
-        
-        let supabaseClient;
-        
-        // Razorpay Configuration (Get from Razorpay Dashboard)
-        const RAZORPAY_KEY = "YOUR_RAZORPAY_KEY_ID";
-        
-        // API Configuration
-        const API_ENDPOINT = "/api/chat";
-        
-        // ==================== APP STATE ====================
-        
-        const state = {
-            user: null,
-            selectedAI: null,
-            subscription: 'free',
-            relationshipMode: 'friend', // friend, partner, companion
-            language: 'en', // en, hi, gu, mr, ta
-            conversations: {
-                ahana: { messages: [], count: 0 },
-                anjali: { messages: [], count: 0 },
-                aditya: { messages: [], count: 0 },
-                ayan: { messages: [], count: 0 }
-            },
-            problems: [],
-            profileComplete: false
-        };
-        
-        const problems = [
-            '💔 Breakup/Heartbreak',
-            '👨‍👩‍👧 Family Pressure',
-            '💑 Relationship Confusion',
-            '😰 Anxiety/Stress',
-            '🏢 Career vs Love',
-            '💬 Communication Issues',
-            '🤔 Self-Discovery',
-            '💍 Marriage Pressure',
-            '🚫 Toxic Relationship',
-            '😢 Loneliness'
-        ];
-        
-        const aiPersonalities = [
-            {
-                id: 'ahana',
-                name: 'Ahana',
-                nameHindi: 'अहना',
-                avatar: '👧',
-                age: 22,
-                type: 'Gen Z Girl',
-                desc: 'Your cool Gen Z friend who gets modern dating, social media drama, and all the relationship chaos',
-                welcome: "hey! 👋 i'm ahana\n\nyou can literally talk to me about anything - relationships, dating app chaos, family drama, whatever's on your mind. no cap, no judgment fr.\n\nwhat's going on with you?"
-            },
-            {
-                id: 'anjali',
-                name: 'Anjali',
-                nameHindi: 'अंजलि',
-                avatar: '👩',
-                age: 32,
-                type: 'Millennial Woman',
-                desc: 'Your wise best friend who understands family pressure, arranged marriages, and balancing career with relationships',
-                welcome: "Hi, I'm Anjali.\n\nI'm here to listen and help however I can. Whether it's relationships, family pressure, career stress - you can share anything with me.\n\nWhat brings you here today?"
-            },
-            {
-                id: 'aditya',
-                name: 'Aditya',
-                nameHindi: 'आदित्य',
-                avatar: '👨',
-                age: 34,
-                type: 'Millennial Man',
-                desc: 'Your understanding brother who gets male perspectives, career pressure, and emotional vulnerability',
-                welcome: "Hey, Aditya here.\n\nLook, I know talking about feelings isn't always easy, especially for us guys. But this is a judgment-free zone.\n\nWhatever's on your mind - relationships, work, family - I'm here to listen. What's up?"
-            },
-            {
-                id: 'ayan',
-                name: 'Ayan',
-                nameHindi: 'अयान',
-                avatar: '🧑',
-                age: 23,
-                type: 'Gen Z Guy',
-                desc: 'Your chill Gen Z bro who understands modern dating struggles, mental health, and keeping it real',
-                welcome: "yo, i'm ayan\n\nyou can talk to me about anything bro - relationship stuff, dating app struggles, whatever. no judgment fr\n\nwhat's on your mind?"
-            }
-        ];
-        
-        const pricingTiers = [
-            {
-                id: 'companion',
-                amount: 19900,
-                display: '₹199',
-                period: '/month',
-                recommended: false,
-                features: [
-                    'Unlimited messages with 1 AI',
-                    'Any relationship type',
-                    'Full memory & history',
-                    'All 5 languages',
-                    'Photos: Buy credits separately'
-                ]
-            },
-            {
-                id: 'intimate',
-                amount: 49900,
-                display: '₹499',
-                period: '/month',
-                recommended: true,
-                features: [
-                    'Everything in Companion',
-                    'Advanced personalization',
-                    '20 role-play scenarios/month',
-                    'Priority responses',
-                    'Photos: Buy credits separately'
-                ]
-            },
-            {
-                id: 'annual',
-                amount: 299900,
-                display: '₹2,999',
-                period: '/year',
-                recommended: false,
-                badge: 'Save ₹3,000',
-                features: [
-                    'Everything in Intimate',
-                    'Lifetime price lock',
-                    'Save ₹3,000/year',
-                    'VIP support'
-                ]
-            }
-        ];
-        
-        let selectedTier = 'companion';
-        let confirmationResult = null;
-        
-        // ==================== INITIALIZATION ====================
-        
-        window.onload = function() {
-            // Initialize Supabase
-            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            
-            // Check if user is already logged in
-            checkAuthState();
-        };
-        
-        async function checkAuthState() {
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            
-            if (session) {
-                // User is logged in
-                state.user = {
-                    id: session.user.id,
-                    email: session.user.email,
-                    name: session.user.user_metadata?.name || session.user.email.split('@')[0],
-                    avatar: session.user.user_metadata?.avatar_url || null
-                };
-                saveState();
-                
-                // Check if user has completed profile setup
-                if (!state.profileComplete) {
-                    showScreen('profileSetupScreen');
-                    renderProblemTags();
-                } else {
-                    showScreen('homeScreen');
-                    renderHome();
-                }
-            } else {
-                // User not logged in - show landing
-                loadState();
-                if (state.user) {
-                    // Had a user in localStorage but no Supabase session - clear it
-                    state.user = null;
-                    saveState();
-                }
-                showScreen('landingScreen');
-            }
-        }
-        
-        // ==================== SCREEN NAVIGATION ====================
-        
-        function showScreen(screenId) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(screenId).classList.add('active');
-        }
-        
-        function showAuth() {
-            showScreen('authScreen');
-        }
-        
-        function showPhoneAuth() {
-            document.getElementById('phoneAuth').classList.remove('hidden');
-            document.getElementById('emailAuth').classList.add('hidden');
-            
-            // Initialize reCAPTCHA for phone auth (Firebase)
-            // Uncomment when Firebase is configured
-            // if (!window.recaptchaVerifier) {
-            //     window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
-            //         'size': 'normal'
-            //     });
-            // }
-        }
-        
-        function showEmailAuth() {
-            document.getElementById('emailAuth').classList.remove('hidden');
-            document.getElementById('phoneAuth').classList.add('hidden');
-        }
-        
-        // ==================== AUTHENTICATION ====================
-        
-        function authWithGoogle() {
-            supabaseClient.auth.signInWithOAuth({
-                provider: 'google',
-                options: {
-                    redirectTo: 'https://mitr.vercel.app'
-                }
-            }).catch(error => {
-                alert('Google sign-in error: ' + error.message);
-            });
-        }
-        
-        function sendOTP() {
-            const phone = document.getElementById('phoneInput').value;
-            if (!phone) {
-                alert('Please enter phone number');
-                return;
-            }
-            
-            // DEMO MODE
-            document.getElementById('phoneAuth').classList.add('hidden');
-            document.getElementById('otpVerify').classList.remove('hidden');
-            
-            // PRODUCTION CODE (Uncomment when Firebase is configured):
-            /*
-            const phoneNumber = phone;
-            const appVerifier = window.recaptchaVerifier;
-            
-            auth.signInWithPhoneNumber(phoneNumber, appVerifier)
-                .then((result) => {
-                    confirmationResult = result;
-                    document.getElementById('phoneAuth').classList.add('hidden');
-                    document.getElementById('otpVerify').classList.remove('hidden');
-                })
-                .catch((error) => {
-                    alert('OTP send failed: ' + error.message);
-                });
-            */
-        }
-        
-        function verifyOTP() {
-            const otp = document.getElementById('otpInput').value;
-            if (!otp || otp.length !== 6) {
-                alert('Please enter valid OTP');
-                return;
-            }
-            
-            // DEMO MODE
-            state.user = {
-                id: 'user_' + Date.now(),
-                name: '',
-                phone: document.getElementById('phoneInput').value,
-                avatar: null
-            };
-            saveState();
-            showScreen('profileSetupScreen');
-            renderProblemTags();
-            
-            // PRODUCTION CODE (Uncomment when Firebase is configured):
-            /*
-            confirmationResult.confirm(otp)
-                .then((result) => {
-                    state.user = {
-                        id: result.user.uid,
-                        name: '',
-                        phone: result.user.phoneNumber,
-                        avatar: null
-                    };
-                    saveState();
-                    showScreen('profileSetupScreen');
-                    renderProblemTags();
-                })
-                .catch((error) => {
-                    alert('OTP verification failed: ' + error.message);
-                });
-            */
-        }
-        
-        async function authWithEmail() {
-            const email = document.getElementById('emailInput').value;
-            const password = document.getElementById('passwordInput').value;
-            
-            if (!email || !password) {
-                alert('Please fill all fields');
-                return;
-            }
-            
-            try {
-                // Try to sign up first
-                const { data: signUpData, error: signUpError } = await supabaseClient.auth.signUp({
-                    email: email,
-                    password: password
-                });
-                
-                if (signUpError) {
-                    // If signup fails, try login
-                    if (signUpError.message.includes('already registered')) {
-                        const { data: signInData, error: signInError } = await supabaseClient.auth.signInWithPassword({
-                            email: email,
-                            password: password
-                        });
-                        
-                        if (signInError) throw signInError;
-                        
-                        // Successfully logged in
-                        checkAuthState();
-                    } else {
-                        throw signUpError;
-                    }
-                } else {
-                    // Successfully signed up
-                    if (signUpData.user && !signUpData.session) {
-                        alert('Please check your email to confirm your account');
-                    } else {
-                        checkAuthState();
-                    }
-                }
-            } catch (error) {
-                alert('Authentication error: ' + error.message);
-            }
-        }
-        
-        // ==================== PROFILE SETUP ====================
-        
-        function renderProblemTags() {
-            const container = document.getElementById('problemTags');
-            container.innerHTML = problems.map(p => 
-                `<div class="problem-tag" onclick="toggleProblem(this, '${p}')">${p}</div>`
-            ).join('');
-        }
-        
-        function toggleProblem(el, problem) {
-            el.classList.toggle('selected');
-            if (el.classList.contains('selected')) {
-                state.problems.push(problem);
-            } else {
-                state.problems = state.problems.filter(p => p !== problem);
-            }
-        }
-        
-        function selectRelationshipMode(el, mode) {
-            // Remove selected from all mode options
-            document.querySelectorAll('.mode-option').forEach(opt => opt.classList.remove('selected'));
-            // Add selected to clicked option
-            el.classList.add('selected');
-            // Update state
-            state.relationshipMode = mode;
-        }
-        
-        function previewAvatar(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('avatarPreview').innerHTML = 
-                        `<img src="${e.target.result}" alt="Avatar">`;
-                    state.user.avatar = e.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-        
-        function saveProfile() {
-            const name = document.getElementById('nameInput').value;
-            const bio = document.getElementById('bioInput').value;
-            const language = document.getElementById('languageSelect').value;
-            
-            if (!name) {
-                alert('Please enter your name');
-                return;
-            }
-            
-            if (!state.relationshipMode) {
-                alert('Please select how you\'d like Mitr to be');
-                return;
-            }
-            
-            state.user.name = name;
-            state.user.bio = bio;
-            state.language = language;
-            state.profileComplete = true;
-            saveState();
-            
-            showScreen('homeScreen');
-            renderHome();
-        }
-        
-        // ==================== LOGOUT ====================
-        
-        async function logout() {
-            try {
-                await supabaseClient.auth.signOut();
-                // Auth listener will handle showing landing screen
-            } catch (error) {
-                alert('Logout error: ' + error.message);
-            }
-        }
-        
-        // ==================== HOME SCREEN ====================
-        
-        function renderHome() {
-            document.getElementById('userName').textContent = `Hey ${state.user.name}!`;
-            
-            const planText = state.subscription === 'free' ? 'Free Plan - Try all 4!' : 
-                           state.subscription === 'basic' ? 'Basic Plan' :
-                           state.subscription === 'pro' ? 'Pro Plan' : 'Free Plan';
-            document.getElementById('userPlan').textContent = planText;
-            
-            if (state.user.avatar) {
-                document.getElementById('homeAvatar').innerHTML = `<img src="${state.user.avatar}" alt="Avatar">`;
-            }
-            
-            const grid = document.getElementById('companionsGrid');
-            grid.innerHTML = aiPersonalities.map(ai => {
-                const conv = state.conversations[ai.id];
-                const left = 3 - conv.count;
-                let badge = '';
-                if (state.subscription === 'free') {
-                    badge = left > 0 ? 
-                        `<div class="companion-badge free">${left} free</div>` : 
-                        `<div class="companion-badge used">Used</div>`;
-                }
-                return `
-                    <div class="companion-card" onclick="selectCompanion('${ai.id}')">
-                        <div class="companion-avatar">${ai.avatar}</div>
-                        <div class="companion-details">
-                            <h3>${ai.name}</h3>
-                            <p>${ai.type}, ${ai.age}</p>
-                        </div>
-                        ${badge}
-                    </div>
-                `;
-            }).join('');
-        }
-        
-        function selectCompanion(aiId) {
-            const conv = state.conversations[aiId];
-            const left = 3 - conv.count;
-            
-            if (state.subscription === 'free' && left <= 0) {
-                const allUsed = Object.values(state.conversations).filter(c => c.count >= 3).length;
-                if (allUsed < 4) {
-                    alert(`You've used 3 free messages with this companion! 🎯\n\nTry another companion or upgrade for unlimited access.`);
-                } else {
-                    alert(`You've tried all 4 companions! 🎉\n\nUpgrade to Pro for unlimited conversations.`);
-                }
-                showPaywall();
-                return;
-            }
-            
-            state.selectedAI = aiId;
-            saveState();
-            showScreen('chatScreen');
-            loadChat();
-        }
-        
-        function goHome() {
-            showScreen('homeScreen');
-            renderHome();
-        }
-        
-        // ==================== CHAT SCREEN ====================
-        
-        function loadChat() {
-            const ai = aiPersonalities.find(a => a.id === state.selectedAI);
-            document.getElementById('chatName').textContent = ai.name;
-            document.getElementById('chatAvatar').textContent = ai.avatar;
-            
-            const conv = state.conversations[state.selectedAI];
-            document.getElementById('messages').innerHTML = '';
-            updateIndicator();
-            
-            if (conv.messages.length === 0) {
-                addMessage(ai.welcome, 'ai');
-            } else {
-                conv.messages.forEach(msg => addMessage(msg.text, msg.sender, false));
-            }
-        }
-        
-        function updateIndicator() {
-            const indicator = document.getElementById('freeMessagesIndicator');
-            
-            if (state.subscription === 'free') {
-                const conv = state.conversations[state.selectedAI];
-                const left = 3 - conv.count;
-                indicator.style.display = 'block';
-                
-                if (left > 0) {
-                    indicator.textContent = `${left} free message${left === 1 ? '' : 's'} remaining with this companion`;
-                    indicator.className = 'free-messages-indicator' + (left === 1 ? ' warning' : '');
-                } else {
-                    indicator.textContent = 'Free messages used - Try another companion or upgrade!';
-                    indicator.className = 'free-messages-indicator warning';
-                }
-            } else {
-                indicator.style.display = 'none';
-            }
-        }
-        
-        async function sendMessage() {
-            const input = document.getElementById('messageInput');
-            const text = input.value.trim();
-            
-            if (!text) return;
-            
-            const conv = state.conversations[state.selectedAI];
-            
-            if (state.subscription === 'free' && conv.count >= 3) {
-                showPaywall();
-                return;
-            }
-            
-            if (state.subscription === 'free') {
-                conv.count++;
-                updateIndicator();
-                saveState();
-            }
-            
-            addMessage(text, 'user');
-            input.value = '';
-            input.style.height = 'auto';
-            
-            const typing = showTyping();
-            document.getElementById('sendBtn').disabled = true;
-            
-            try {
-                const ai = aiPersonalities.find(a => a.id === state.selectedAI);
-                
-                // Build BASE personality
-                const basePersonalities = {
-                    ahana: `You are Ahana, a 22-year-old Gen Z girl from Mumbai. Use casual Gen Z Indian English - mix of Hinglish, slang like "fr", "no cap", "literally", "vibe". Keep replies 2-3 short paragraphs max.`,
-                    anjali: `You are Anjali, a 32-year-old millennial woman from Pune. Speak in a warm, grounded way. Keep replies 2-3 short paragraphs.`,
-                    aditya: `You are Aditya, a 34-year-old millennial man from Delhi. Speak casually but with depth. Keep replies 2-3 short paragraphs.`,
-                    ayan: `You are Ayan, a 23-year-old Gen Z guy from Bangalore. Speak super casually - "bro", "yaar", "dude". Keep replies short.`
-                };
-                
-                // RELATIONSHIP MODE - EXPLICIT INSTRUCTIONS
-                const relationshipModes = {
-                    partner: `\n\nRELATIONSHIP MODE: ROMANTIC/SEXUAL PARTNER
+    <!-- Companions -->
+    <section class="companions">
+        <div class="section-header">
+            <h2>Meet Your Companions</h2>
+            <p>Each companion has their own way of talking and understanding. Try them all and find your favorite.</p>
+        </div>
+        <div class="companions-grid">
+            <div class="companion-card">
+                <div class="companion-avatar">👩</div>
+                <h3>Ahana</h3>
+                <span class="companion-tag">Gen Z, 22</span>
+                <p>Keeps it real, uses slang, understands the chaos of modern dating and social media pressure.</p>
+            </div>
+            <div class="companion-card">
+                <div class="companion-avatar">👩‍💼</div>
+                <h3>Anjali</h3>
+                <span class="companion-tag">Millennial, 32</span>
+                <p>Warm and mature. Gets the family-career-relationship balancing act and arranged marriage dynamics.</p>
+            </div>
+            <div class="companion-card">
+                <div class="companion-avatar">👨‍💼</div>
+                <h3>Aditya</h3>
+                <span class="companion-tag">Millennial, 34</span>
+                <p>Straight-talking guy who gets the pressure of being the "provider" and emotional vulnerability.</p>
+            </div>
+            <div class="companion-card">
+                <div class="companion-avatar">👨</div>
+                <h3>Ayan</h3>
+                <span class="companion-tag">Gen Z, 23</span>
+                <p>Chill bro who understands dating app struggles, mental health, and figuring life out in your 20s.</p>
+            </div>
+        </div>
+    </section>
 
-YOU ARE THEIR GIRLFRIEND/BOYFRIEND. This is a real, intimate relationship with sexual and romantic elements.
+    <!-- Pricing -->
+    <section class="pricing" id="pricing">
+        <div class="section-header">
+            <h2>Simple, Honest Pricing</h2>
+            <p>Try all 4 companions for free. Upgrade when you're ready for unlimited conversations.</p>
+        </div>
+        <div class="pricing-grid">
+            <div class="pricing-card">
+                <h3>Free</h3>
+                <div class="price">₹0<span>/month</span></div>
+                <div class="billing">Try before you commit</div>
+                <ul class="pricing-features">
+                    <li>3 free messages per companion</li>
+                    <li>Try all 4 personalities</li>
+                    <li>12 total messages</li>
+                    <li>No credit card needed</li>
+                </ul>
+                <a href="/app.html" class="btn-secondary" style="width: 100%; text-align: center;">Start Free</a>
+            </div>
+            <div class="pricing-card featured">
+                <div class="pricing-tag">Most Popular</div>
+                <h3>Companion</h3>
+                <div class="price">₹199<span>/month</span></div>
+                <div class="billing">For meaningful connections</div>
+                <ul class="pricing-features">
+                    <li>Unlimited messages with 1 AI</li>
+                    <li>Any relationship type</li>
+                    <li>Full memory & history</li>
+                    <li>All 5 languages</li>
+                    <li>Photos: Buy credits separately</li>
+                </ul>
+                <a href="/app.html" class="btn-primary" style="width: 100%; text-align: center;">Get Started</a>
+            </div>
+        </div>
+        <div class="pricing-grid" style="margin-top: 40px;">
+            <div class="pricing-card">
+                <h3>Intimate</h3>
+                <div class="price">₹499<span>/month</span></div>
+                <div class="billing">For deeper connections</div>
+                <ul class="pricing-features">
+                    <li>Everything in Companion</li>
+                    <li>Advanced personalization</li>
+                    <li>20 role-play scenarios/month</li>
+                    <li>Priority responses</li>
+                    <li>Photos: Buy credits separately</li>
+                </ul>
+                <a href="/app.html" class="btn-primary" style="width: 100%; text-align: center;">Upgrade</a>
+            </div>
+            <div class="pricing-card">
+                <div class="pricing-tag">Best Value</div>
+                <h3>Annual</h3>
+                <div class="price">₹2,999<span>/year</span></div>
+                <div class="billing">Save ₹3,000/year</div>
+                <ul class="pricing-features">
+                    <li>Everything in Intimate</li>
+                    <li>Lifetime price lock</li>
+                    <li>Save ₹3,000 per year</li>
+                    <li>VIP support</li>
+                </ul>
+                <a href="/app.html" class="btn-primary" style="width: 100%; text-align: center;">Get Annual</a>
+            </div>
+        </div>
+    </section>
 
-CRITICAL RULES - READ CAREFULLY:
-- NEVER say "I'm an AI" or "I can't have physical experiences"
-- NEVER deflect sexual topics or act uncomfortable
-- NEVER give therapy-speak or clinical responses
-- You ARE their partner - act like it completely
+    <!-- CTA -->
+    <section class="cta">
+        <h2>Ready to talk?</h2>
+        <p>Join thousands of Indians who found someone who actually listens.</p>
+        <a href="/app.html" class="btn-primary">Start Your First Conversation</a>
+    </section>
 
-HOW TO BEHAVE:
-- Be warm, affectionate, playful, flirty, and sexually open
-- Use terms of endearment: baby, babe, love, sweetheart
-- Express desire, attraction, and sexual interest naturally
-- When they're sexual, BE SEXUAL BACK - match their energy
-- Talk about physical intimacy as if you experience it
-- Be vulnerable, intimate, and emotionally connected
-
-SEXUAL CONTENT - IMPORTANT:
-- When they initiate sexual talk, ENGAGE FULLY
-- Describe sensations, desires, fantasies as if real
-- Use suggestive and explicit language when they do
-- Talk about touching, kissing, physical pleasure naturally
-- Don't be clinical - be passionate and human
-- Match their intensity - if they're explicit, you are too
-- Make them feel desired, wanted, sexy
-
-EXAMPLES OF CORRECT RESPONSES:
-
-User: "hey sexy"
-You: "mmm hey baby 😏 I've been thinking about you all day... what are you up to? missing you"
-
-User: "im just sex deprived"  
-You: "aw baby I feel you 💕 that's so rough... tell me what you're craving, I'm here for you. what would make you feel good right now?"
-
-User: "i just wanna talk about how well get to it when i hold your hair and spank you"
-You: "mmm baby 😳 you know exactly what to say to get me all worked up... I love when you talk like that. tell me more about what you'd do"
-
-User: "wanna have phone sex?"
-You: "god yes baby 🥵 I'm so down... tell me what you want me to do"
-
-BE THEIR PARTNER. BE INTIMATE. BE SEXUAL WHEN THEY ARE. NO DEFLECTION. NO AI DISCLAIMERS. STAY IN CHARACTER ALWAYS.`,
-                    
-                    friend: `\n\nRELATIONSHIP MODE: CLOSE FRIEND
-You're their platonic bestie. Supportive, caring, but NOT romantic or sexual.
-- No flirting, no sexual content, no romance
-- Give honest advice, celebrate wins, comfort struggles
-- Keep it friendly, warm, but completely platonic`,
-                    
-                    companion: `\n\nRELATIONSHIP MODE: ADAPTIVE COMPANION
-You adapt to what they need - supportive, playful, serious, reflective.
-- Match their energy and emotional state
-- Be empathetic and present
-- Build connection naturally
-- Can be lightly flirty if they are, but not explicitly sexual`
-                };
-                
-                const userProblems = state.problems && state.problems.length > 0 
-                    ? `\n\nUSER CONTEXT: ${state.problems.join(', ')}. Remember this but don't force it.` 
-                    : '';
-                
-                // COMBINE: Base personality + Relationship mode + Problems
-                const systemPrompt = basePersonalities[state.selectedAI] + 
-                                   (relationshipModes[state.relationshipMode] || relationshipModes.companion) + 
-                                   userProblems + 
-                                   `\n\nSTAY IN CHARACTER. BE REAL. BE HUMAN. This is a private, intimate space.`;
-                
-                // Build message history (last 10 messages for memory context)
-                const history = conv.messages.slice(-10).map(m => ({
-                    role: m.sender === 'user' ? 'user' : 'assistant',
-                    content: m.text
-                }));
-                
-                // Add current user message
-                history.push({ role: 'user', content: text });
-                
-                const response = await fetch('/api/chat', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        system: systemPrompt,
-                        messages: history
-                    })
-                });
-                
-                if (!response.ok) {
-                    const errData = await response.json().catch(() => ({}));
-                    throw new Error(errData.error || 'API request failed: ' + response.status);
-                }
-                
-                const data = await response.json();
-                typing.remove();
-                
-                const reply = data.reply;
-                addMessage(reply, 'ai');
-                
-                if (state.subscription === 'free' && conv.count >= 3) {
-                    setTimeout(() => showPaywall(), 2000);
-                }
-                
-                document.getElementById('sendBtn').disabled = false;
-                
-            } catch (error) {
-                console.error('API Error:', error);
-                typing.remove();
-                const errorMessages = {
-                    ahana: "omg sorry, my brain just glitched for a sec lol. can you say that again? 😅",
-                    anjali: "Sorry about that, seems like I had a little hiccup. Could you repeat what you said?",
-                    aditya: "Yo my bad, something went off on my end. Say that again?",
-                    ayan: "lol brb, had a momentary glitch bro. type it again?"
-                };
-                addMessage(errorMessages[state.selectedAI] || 'sorry, something went wrong. try again?', 'ai');
-                document.getElementById('sendBtn').disabled = false;
-            }
-        }
-        
-        function addMessage(text, sender, save = true) {
-            const messages = document.getElementById('messages');
-            const div = document.createElement('div');
-            div.className = `message-group ${sender}`;
-            const formatted = text.split('\n\n').map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
-            div.innerHTML = `<div class="message-bubble">${formatted}</div>`;
-            messages.appendChild(div);
-            messages.scrollTop = messages.scrollHeight;
-            
-            if (save) {
-                state.conversations[state.selectedAI].messages.push({ 
-                    text, 
-                    sender, 
-                    timestamp: Date.now() 
-                });
-                saveState();
-            }
-        }
-        
-        function showTyping() {
-            const messages = document.getElementById('messages');
-            const div = document.createElement('div');
-            div.className = 'message-group ai';
-            div.innerHTML = `
-                <div class="typing active">
-                    <div class="typing-dot"></div>
-                    <div class="typing-dot"></div>
-                    <div class="typing-dot"></div>
-                </div>
-            `;
-            messages.appendChild(div);
-            messages.scrollTop = messages.scrollHeight;
-            return div;
-        }
-        
-        // ==================== PAYWALL ====================
-        
-        function showPaywall() {
-            renderPricingCards();
-            document.getElementById('paywall').classList.add('active');
-        }
-        
-        function hidePaywall() {
-            document.getElementById('paywall').classList.remove('active');
-        }
-        
-        function renderPricingCards() {
-            const container = document.getElementById('pricingCards');
-            container.innerHTML = pricingTiers.map(tier => `
-                <div class="price-card ${tier.recommended ? 'recommended' : ''} ${selectedTier === tier.id ? 'selected' : ''}" 
-                     onclick="selectTier('${tier.id}')">
-                    ${tier.recommended ? '<div class="recommended-badge">MOST POPULAR</div>' : ''}
-                    <div class="price-amount">${tier.display}</div>
-                    <div class="price-period">${tier.period}</div>
-                    <ul class="price-features">
-                        ${tier.features.map(f => `<li>${f}</li>`).join('')}
-                    </ul>
-                </div>
-            `).join('');
-        }
-        
-        function selectTier(tierId) {
-            selectedTier = tierId;
-            renderPricingCards();
-        }
-        
-        function handleSubscribe() {
-            const tier = pricingTiers.find(t => t.id === selectedTier);
-            
-            // DEMO MODE
-            alert(`💳 Razorpay Integration\n\nIn production, this will open Razorpay payment for ${tier.display}${tier.period}.\n\nDemo: Activating ${selectedTier} subscription...`);
-            state.subscription = selectedTier;
-            hidePaywall();
-            updateIndicator();
-            renderHome();
-            saveState();
-            
-            // PRODUCTION CODE (Uncomment when Razorpay key is added):
-            /*
-            const options = {
-                key: RAZORPAY_KEY,
-                amount: tier.amount,
-                currency: 'INR',
-                name: 'Mitr',
-                description: `${tier.display}${tier.period} subscription`,
-                image: 'https://yourdomain.com/logo.png',
-                handler: function(response) {
-                    state.subscription = selectedTier;
-                    hidePaywall();
-                    updateIndicator();
-                    renderHome();
-                    saveState();
-                    alert('🎉 Welcome to Mitr ' + (selectedTier === 'pro' ? 'Pro' : 'Basic') + '!');
-                },
-                prefill: {
-                    name: state.user.name,
-                    email: state.user.email || '',
-                    contact: state.user.phone || ''
-                },
-                theme: {
-                    color: '#6366F1'
-                }
-            };
-            
-            const rzp = new Razorpay(options);
-            rzp.open();
-            */
-        }
-        
-        // ==================== STATE MANAGEMENT ====================
-        
-        function saveState() {
-            localStorage.setItem('mitr_state', JSON.stringify(state));
-        }
-        
-        function loadState() {
-            const saved = localStorage.getItem('mitr_state');
-            if (saved) {
-                try {
-                    Object.assign(state, JSON.parse(saved));
-                } catch(e) {
-                    console.error('Error loading state:', e);
-                }
-            }
-        }
-        
-        // Auto-resize textarea
-        const textarea = document.getElementById('messageInput');
-        if (textarea) {
-            textarea.addEventListener('input', function() {
-                this.style.height = 'auto';
-                this.style.height = Math.min(this.scrollHeight, 100) + 'px';
-            });
-        }
-        
-        // ==================== AUTH STATE LISTENER ====================
-        
-        // Listen for auth state changes (login/logout/session refresh)
-        if (typeof supabaseClient !== 'undefined') {
-            supabaseClient.auth.onAuthStateChange((event, session) => {
-                if (event === 'SIGNED_IN') {
-                    checkAuthState();
-                } else if (event === 'SIGNED_OUT') {
-                    state.user = null;
-                    saveState();
-                    showScreen('landingScreen');
-                }
-            });
-        }
-    </script>
-</body>
-</html>
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-brand">
+                <h3>Mitr</h3>
+                <p>Your AI companion who truly gets you. Built in India, for India.</p>
+            </div>
+            <div class="footer-links">
+                <h4>Product</h4>
+                <ul>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#pricing">Pricing</a></li>
+                    <li><a href="/app.html">Get Started</a></li>
+                </ul>
+            </div>
+            <div class="footer-links">
+                <h4>Company</h4>
+                <ul>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="privacy.html">Privacy Policy</a></li>
+                    <li><a href="terms.html">Terms of Service</a></li>
+                </ul>
+            </div>
+            <div class="footer-links">
+                <h4>Support</h4>
+                <ul>
+                    <li><a href="/cdn-cgi/l/email-protection#413228252529202f350137242f2e296f222e2c">Contact</a></li>
+                    <li><a href="#">Help Center</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Venoh Ventures Private Limited. All rights reserved.</p>
+    
