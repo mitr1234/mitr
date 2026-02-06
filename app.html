@@ -1674,6 +1674,74 @@
             }
         }
         
+        // ==================== SUPABASE CONVERSATION STORAGE ====================
+        
+        // Save a message to Supabase
+        async function saveMessageToSupabase(companionId, messageText, sender) {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('conversations')
+                    .insert({
+                        user_id: state.user.id,
+                        companion_id: companionId,
+                        message_text: messageText,
+                        sender: sender
+                    });
+                
+                if (error) {
+                    console.error('Error saving message to Supabase:', error);
+                    // Don't throw - we have localStorage backup
+                } else {
+                    console.log('Message saved to Supabase ✓');
+                }
+            } catch (error) {
+                console.error('Supabase save error:', error);
+                // Silent fail - localStorage is backup
+            }
+        }
+        
+        // Load conversation history from Supabase
+        async function loadConversationFromSupabase(companionId) {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('conversations')
+                    .select('*')
+                    .eq('user_id', state.user.id)
+                    .eq('companion_id', companionId)
+                    .order('created_at', { ascending: true })
+                    .limit(100); // Last 100 messages
+                
+                if (error) {
+                    console.error('Error loading conversations:', error);
+                    return null;
+                }
+                
+                console.log(`Loaded ${data.length} messages from Supabase for ${companionId}`);
+                return data;
+                
+            } catch (error) {
+                console.error('Supabase load error:', error);
+                return null;
+            }
+        }
+        
+        // Delete all conversations with a companion
+        async function deleteConversationFromSupabase(companionId) {
+            try {
+                const { error } = await supabaseClient
+                    .from('conversations')
+                    .delete()
+                    .eq('user_id', state.user.id)
+                    .eq('companion_id', companionId);
+                
+                if (error) {
+                    console.error('Error deleting conversations:', error);
+                }
+            } catch (error) {
+                console.error('Supabase delete error:', error);
+            }
+        }
+        
         // ==================== HOME SCREEN ====================
         
         function renderHome() {
@@ -1739,7 +1807,7 @@
         
         // ==================== CHAT SCREEN ====================
         
-        function loadChat() {
+        async function loadChat() {
             const ai = aiPersonalities.find(a => a.id === state.selectedAI);
             document.getElementById('chatName').textContent = ai.name;
             document.getElementById('chatAvatar').textContent = ai.avatar;
@@ -1748,10 +1816,34 @@
             document.getElementById('messages').innerHTML = '';
             updateIndicator();
             
-            if (conv.messages.length === 0) {
-                addMessage(ai.welcome, 'ai');
-            } else {
+            // Try to load from Supabase first
+            const supabaseMessages = await loadConversationFromSupabase(state.selectedAI);
+            
+            if (supabaseMessages && supabaseMessages.length > 0) {
+                // Load from Supabase
+                console.log('Loading conversation from Supabase');
+                
+                // Update localStorage with Supabase data
+                conv.messages = supabaseMessages.map(msg => ({
+                    text: msg.message_text,
+                    sender: msg.sender,
+                    timestamp: new Date(msg.created_at).getTime()
+                }));
+                saveState();
+                
+                // Display messages
+                supabaseMessages.forEach(msg => {
+                    addMessage(msg.message_text, msg.sender, false);
+                });
+                
+            } else if (conv.messages.length > 0) {
+                // Fallback to localStorage
+                console.log('Loading conversation from localStorage');
                 conv.messages.forEach(msg => addMessage(msg.text, msg.sender, false));
+                
+            } else {
+                // New conversation - show welcome message
+                addMessage(ai.welcome, 'ai');
             }
         }
         
@@ -1866,12 +1958,16 @@
             messages.scrollTop = messages.scrollHeight;
             
             if (save) {
+                // Save to localStorage
                 state.conversations[state.selectedAI].messages.push({ 
                     text, 
                     sender, 
                     timestamp: Date.now() 
                 });
                 saveState();
+                
+                // Save to Supabase (async, non-blocking)
+                saveMessageToSupabase(state.selectedAI, text, sender);
             }
         }
         
