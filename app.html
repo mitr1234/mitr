@@ -1329,13 +1329,29 @@
             
             if (session) {
                 // User is logged in
+                const metadata = session.user.user_metadata || {};
+                
                 state.user = {
                     id: session.user.id,
                     email: session.user.email,
-                    name: session.user.user_metadata?.name || session.user.email.split('@')[0],
-                    avatar: session.user.user_metadata?.avatar_url || null
+                    name: metadata.name || session.user.email.split('@')[0],
+                    bio: metadata.bio || '',
+                    avatar: metadata.avatar_url || null
                 };
-                saveState();
+                
+                // Load profile data from Supabase
+                state.language = metadata.language || 'English';
+                state.relationshipMode = metadata.relationship_mode || '';
+                state.problems = metadata.problems || [];
+                state.profileComplete = metadata.profile_complete || false;
+                
+                saveState(); // Save to localStorage as backup
+                
+                console.log('Loaded profile from Supabase:', {
+                    name: state.user.name,
+                    profileComplete: state.profileComplete,
+                    relationshipMode: state.relationshipMode
+                });
                 
                 // Check if user has completed profile setup
                 if (!state.profileComplete) {
@@ -1596,7 +1612,7 @@
             }
         }
         
-        function saveProfile() {
+        async function saveProfile() {
             const name = document.getElementById('nameInput').value;
             const bio = document.getElementById('bioInput').value;
             const language = document.getElementById('languageSelect').value;
@@ -1611,10 +1627,36 @@
                 return;
             }
             
+            // Save to state
             state.user.name = name;
             state.user.bio = bio;
             state.language = language;
             state.profileComplete = true;
+            
+            try {
+                // SAVE TO SUPABASE - This persists across devices!
+                const { data, error } = await supabaseClient.auth.updateUser({
+                    data: {
+                        name: name,
+                        bio: bio,
+                        language: language,
+                        relationship_mode: state.relationshipMode,
+                        problems: state.problems,
+                        profile_complete: true
+                    }
+                });
+                
+                if (error) throw error;
+                
+                console.log('Profile saved to Supabase!');
+                
+            } catch (error) {
+                console.error('Error saving profile to Supabase:', error);
+                alert('Profile save error: ' + error.message);
+                return;
+            }
+            
+            // Save to localStorage as backup
             saveState();
             
             showScreen('homeScreen');
