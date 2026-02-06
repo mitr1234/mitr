@@ -913,6 +913,15 @@
 </head>
 <body>
     <div class="app">
+        <!-- LOADING SCREEN -->
+        <div class="screen active" id="loadingScreen" style="display: flex; align-items: center; justify-content: center; min-height: 100vh; background: var(--bg);">
+            <div style="text-align: center;">
+                <div style="font-size: 48px; margin-bottom: 16px;">💭</div>
+                <h2 style="font-size: 24px; font-weight: 600; margin-bottom: 8px;">Loading Mitr...</h2>
+                <p style="color: var(--text-secondary);">Just a moment</p>
+            </div>
+        </div>
+        
         <!-- LANDING SCREEN -->
         <div class="screen" id="landingScreen">
             <div class="landing">
@@ -1285,12 +1294,24 @@
         
         // ==================== INITIALIZATION ====================
         
-        window.onload = function() {
-            // Initialize Supabase
-            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            
-            // Check if user is already logged in
-            checkAuthState();
+        window.onload = async function() {
+            try {
+                // Initialize Supabase
+                if (!window.supabase) {
+                    alert('Error: Supabase SDK failed to load. Please refresh the page.');
+                    return;
+                }
+                
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                
+                // Check if user is already logged in
+                await checkAuthState();
+            } catch (error) {
+                console.error('Initialization error:', error);
+                alert('App failed to load: ' + error.message);
+                // Show auth screen as fallback
+                showScreen('authScreen');
+            }
         };
         
         async function checkAuthState() {
@@ -1331,6 +1352,11 @@
         function showScreen(screenId) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(screenId).classList.add('active');
+            // Hide loading screen
+            const loadingScreen = document.getElementById('loadingScreen');
+            if (loadingScreen && screenId !== 'loadingScreen') {
+                loadingScreen.style.display = 'none';
+            }
         }
         
         function showAuth() {
