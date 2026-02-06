@@ -1315,14 +1315,14 @@
                     renderHome();
                 }
             } else {
-                // User not logged in - show landing
+                // User not logged in - show AUTH screen (not landing)
                 loadState();
                 if (state.user) {
                     // Had a user in localStorage but no Supabase session - clear it
                     state.user = null;
                     saveState();
                 }
-                showScreen('landingScreen');
+                showScreen('authScreen');
             }
         }
         
