@@ -1295,10 +1295,18 @@
         // ==================== INITIALIZATION ====================
         
         window.onload = async function() {
+            // Timeout fallback - if app doesn't load in 5 seconds, force show auth screen
+            const timeout = setTimeout(() => {
+                console.log('Loading timeout - forcing auth screen');
+                showScreen('authScreen');
+            }, 5000);
+            
             try {
                 // Initialize Supabase
                 if (!window.supabase) {
+                    clearTimeout(timeout);
                     alert('Error: Supabase SDK failed to load. Please refresh the page.');
+                    showScreen('authScreen');
                     return;
                 }
                 
@@ -1306,7 +1314,9 @@
                 
                 // Check if user is already logged in
                 await checkAuthState();
+                clearTimeout(timeout);
             } catch (error) {
+                clearTimeout(timeout);
                 console.error('Initialization error:', error);
                 alert('App failed to load: ' + error.message);
                 // Show auth screen as fallback
