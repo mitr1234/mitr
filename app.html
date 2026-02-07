@@ -1344,13 +1344,15 @@
                 state.relationshipMode = metadata.relationship_mode || '';
                 state.problems = metadata.problems || [];
                 state.profileComplete = metadata.profile_complete || false;
+                state.subscription = metadata.subscription || 'free'; // Load subscription from Supabase
                 
                 saveState(); // Save to localStorage as backup
                 
                 console.log('Loaded profile from Supabase:', {
                     name: state.user.name,
                     profileComplete: state.profileComplete,
-                    relationshipMode: state.relationshipMode
+                    relationshipMode: state.relationshipMode,
+                    subscription: state.subscription
                 });
                 
                 // Check if user has completed profile setup
@@ -1742,6 +1744,25 @@
             }
         }
         
+        // Save subscription to Supabase
+        async function saveSubscriptionToSupabase(subscription) {
+            try {
+                const { data, error } = await supabaseClient.auth.updateUser({
+                    data: {
+                        subscription: subscription
+                    }
+                });
+                
+                if (error) throw error;
+                
+                console.log('Subscription saved to Supabase ✓');
+                
+            } catch (error) {
+                console.error('Error saving subscription to Supabase:', error);
+                // Don't throw - localStorage is backup
+            }
+        }
+        
         // ==================== HOME SCREEN ====================
         
         function renderHome() {
@@ -2018,11 +2039,15 @@
             renderPricingCards();
         }
         
-        function handleSubscribe() {
+        async function handleSubscribe() {
             const tier = pricingTiers.find(t => t.id === selectedTier);
             
             // DEMO MODE
             alert(`💳 Razorpay Integration\n\nIn production, this will open Razorpay payment for ${tier.display}${tier.period}.\n\nDemo: Activating ${selectedTier} subscription...`);
+            
+            // Save subscription to Supabase
+            await saveSubscriptionToSupabase(selectedTier);
+            
             state.subscription = selectedTier;
             hidePaywall();
             updateIndicator();
@@ -2038,7 +2063,10 @@
                 name: 'Mitr',
                 description: `${tier.display}${tier.period} subscription`,
                 image: 'https://yourdomain.com/logo.png',
-                handler: function(response) {
+                handler: async function(response) {
+                    // Save subscription to Supabase
+                    await saveSubscriptionToSupabase(selectedTier);
+                    
                     state.subscription = selectedTier;
                     hidePaywall();
                     updateIndicator();
