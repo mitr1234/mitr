@@ -1165,7 +1165,7 @@
         let supabaseClient;
         
         // Razorpay Configuration (Get from Razorpay Dashboard)
-        const RAZORPAY_KEY = "YOUR_RAZORPAY_KEY_ID";
+        const RAZORPAY_KEY = "rzp_live_SDF9o6ixZTQGH4";
         
         // API Configuration
         const API_ENDPOINT = "/api/chat";
@@ -1415,7 +1415,7 @@
             supabaseClient.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
-                    redirectTo: 'https://mitr.vercel.app'
+                    redirectTo: 'https://www.mitr.xyz'
                 }
             }).catch(error => {
                 alert('Google sign-in error: ' + error.message);
@@ -2210,52 +2210,102 @@
         
         async function handleSubscribe() {
             const tier = pricingTiers.find(t => t.id === selectedTier);
+            if (!tier) return;
             
-            // DEMO MODE
-            alert(`💳 Razorpay Integration\n\nIn production, this will open Razorpay payment for ${tier.display}${tier.period}.\n\nDemo: Activating ${selectedTier} subscription...`);
+            const subscribeBtn = document.querySelector('.subscribe-btn');
+            subscribeBtn.disabled = true;
+            subscribeBtn.textContent = 'Processing...';
             
-            // Save subscription to Supabase
-            await saveSubscriptionToSupabase(selectedTier);
-            
-            state.subscription = selectedTier;
-            hidePaywall();
-            updateIndicator();
-            renderHome();
-            saveState();
-            
-            // PRODUCTION CODE (Uncomment when Razorpay key is added):
-            /*
-            const options = {
-                key: RAZORPAY_KEY,
-                amount: tier.amount,
-                currency: 'INR',
-                name: 'Mitr',
-                description: `${tier.display}${tier.period} subscription`,
-                image: 'https://yourdomain.com/logo.png',
-                handler: async function(response) {
-                    // Save subscription to Supabase
-                    await saveSubscriptionToSupabase(selectedTier);
-                    
-                    state.subscription = selectedTier;
-                    hidePaywall();
-                    updateIndicator();
-                    renderHome();
-                    saveState();
-                    alert('🎉 Welcome to Mitr ' + (selectedTier === 'pro' ? 'Pro' : 'Basic') + '!');
-                },
-                prefill: {
-                    name: state.user.name,
-                    email: state.user.email || '',
-                    contact: state.user.phone || ''
-                },
-                theme: {
-                    color: '#6366F1'
+            try {
+                // Step 1: Create order on server
+                const orderResponse = await fetch('/api/create-order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        amount: tier.amount,
+                        tierId: tier.id,
+                        userId: state.user.id,
+                        userEmail: state.user.email
+                    })
+                });
+                
+                if (!orderResponse.ok) {
+                    const err = await orderResponse.json().catch(() => ({}));
+                    throw new Error(err.error || 'Failed to create order');
                 }
-            };
-            
-            const rzp = new Razorpay(options);
-            rzp.open();
-            */
+                
+                const order = await orderResponse.json();
+                
+                // Step 2: Open Razorpay checkout
+                const options = {
+                    key: RAZORPAY_KEY,
+                    amount: order.amount,
+                    currency: 'INR',
+                    name: 'Mitr',
+                    description: `${tier.display}${tier.period} subscription`,
+                    order_id: order.id,
+                    handler: async function(response) {
+                        // Step 3: Verify payment on server
+                        try {
+                            const verifyResponse = await fetch('/api/verify-payment', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    razorpay_order_id: response.razorpay_order_id,
+                                    razorpay_payment_id: response.razorpay_payment_id,
+                                    razorpay_signature: response.razorpay_signature,
+                                    tierId: tier.id,
+                                    userId: state.user.id
+                                })
+                            });
+                            
+                            if (!verifyResponse.ok) throw new Error('Payment verification failed');
+                            
+                            // Step 4: Activate subscription
+                            await saveSubscriptionToSupabase(selectedTier);
+                            state.subscription = selectedTier;
+                            hidePaywall();
+                            updateIndicator();
+                            renderHome();
+                            saveState();
+                            
+                            alert('🎉 Welcome to Mitr ' + tier.display + tier.period + '! Enjoy unlimited conversations.');
+                            
+                        } catch (verifyError) {
+                            console.error('Verification error:', verifyError);
+                            alert('Payment received but verification failed. Please contact support at support@mitr.xyz with payment ID: ' + response.razorpay_payment_id);
+                        }
+                    },
+                    prefill: {
+                        name: state.user.name || '',
+                        email: state.user.email || '',
+                        contact: state.user.phone || ''
+                    },
+                    theme: {
+                        color: '#6366F1'
+                    },
+                    modal: {
+                        ondismiss: function() {
+                            subscribeBtn.disabled = false;
+                            subscribeBtn.textContent = 'Subscribe Now';
+                        }
+                    }
+                };
+                
+                const rzp = new Razorpay(options);
+                rzp.on('payment.failed', function(response) {
+                    alert('Payment failed: ' + response.error.description);
+                    subscribeBtn.disabled = false;
+                    subscribeBtn.textContent = 'Subscribe Now';
+                });
+                rzp.open();
+                
+            } catch (error) {
+                console.error('Subscribe error:', error);
+                alert('Something went wrong: ' + error.message);
+                subscribeBtn.disabled = false;
+                subscribeBtn.textContent = 'Subscribe Now';
+            }
         }
         
         // ==================== STATE MANAGEMENT ====================
