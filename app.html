@@ -1768,9 +1768,10 @@
         function renderHome() {
             document.getElementById('userName').textContent = `Hey ${state.user.name}!`;
             
-            const planText = state.subscription === 'free' ? 'Free Plan - Try all 4!' : 
-                           state.subscription === 'basic' ? 'Basic Plan' :
-                           state.subscription === 'pro' ? 'Pro Plan' : 'Free Plan';
+            const planText = state.subscription === 'free' ? 'Free Plan' : 
+                           state.subscription === 'companion' ? '💜 Companion Plan' :
+                           state.subscription === 'intimate' ? '💎 Intimate Plan' :
+                           state.subscription === 'annual' ? '👑 Annual Plan' : 'Free Plan';
             document.getElementById('userPlan').textContent = planText;
             
             if (state.user.avatar) {
