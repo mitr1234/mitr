@@ -7,11 +7,12 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    const { companionId, relationshipMode, problems, messages } = req.body;
+    const { companionId, relationshipMode, problems, messages, memoryContext } = req.body;
 
     console.log('=== API CALLED ===');
     console.log('companionId:', companionId);
     console.log('relationshipMode:', relationshipMode);
+    console.log('memories:', memoryContext ? 'YES' : 'NONE');
 
     if (!companionId || !relationshipMode || !messages) {
       return res.status(400).json({ error: 'Missing required fields' });
@@ -62,8 +63,13 @@ STAY IN CHARACTER ALWAYS.`,
     if (problems && problems.length > 0) {
       systemPrompt += `\n\nUSER CONTEXT: ${problems.join(', ')}.`;
     }
+
+    // Add memory context if available
+    if (memoryContext && memoryContext.trim()) {
+      systemPrompt += memoryContext;
+    }
     
-    systemPrompt += `\n\nRemember key facts, use their name if mentioned, build continuity.`;
+    systemPrompt += `\n\nRemember key facts, use their name if mentioned, build continuity. Reference things they've told you before naturally to show you remember and care.`;
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
