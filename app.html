@@ -1763,6 +1763,161 @@
             }
         }
         
+        // ==================== MEMORY SYSTEM ====================
+        
+        // Cache for current chat memories (avoid re-fetching every message)
+        let cachedMemories = null;
+        let cachedMemoriesFor = null; // which companion the cache is for
+        
+        // Fetch memories from Supabase for a companion
+        async function fetchMemories(companionId) {
+            // Return cache if valid
+            if (cachedMemories && cachedMemoriesFor === companionId) {
+                return cachedMemories;
+            }
+            
+            try {
+                const { data, error } = await supabaseClient
+                    .from('user_memories')
+                    .select('memory_type, memory_key, memory_value, importance')
+                    .eq('user_id', state.user.id)
+                    .eq('companion_id', companionId)
+                    .order('importance', { ascending: false })
+                    .limit(15);
+                
+                if (error) {
+                    console.error('Memory fetch error:', error);
+                    return [];
+                }
+                
+                console.log(`Loaded ${data.length} memories for ${companionId}`);
+                cachedMemories = data;
+                cachedMemoriesFor = companionId;
+                return data;
+                
+            } catch (error) {
+                console.error('Memory fetch exception:', error);
+                return [];
+            }
+        }
+        
+        // Format memories into a prompt string for the AI
+        function formatMemoriesForPrompt(memories) {
+            if (!memories || memories.length === 0) return '';
+            
+            const grouped = {};
+            memories.forEach(m => {
+                if (!grouped[m.memory_type]) grouped[m.memory_type] = [];
+                grouped[m.memory_type].push(`- ${m.memory_key}: ${m.memory_value}`);
+            });
+            
+            let context = '\n\nWHAT YOU REMEMBER ABOUT THIS USER:';
+            
+            if (grouped.personal_info) context += '\nPersonal: ' + grouped.personal_info.join('; ');
+            if (grouped.problem) context += '\nCurrent issues: ' + grouped.problem.join('; ');
+            if (grouped.preference) context += '\nLikes/interests: ' + grouped.preference.join('; ');
+            if (grouped.life_event) context += '\nLife events: ' + grouped.life_event.join('; ');
+            if (grouped.emotional_state) context += '\nEmotional state: ' + grouped.emotional_state.join('; ');
+            
+            context += '\n\nUse this naturally. Reference things they told you before to show you remember and care. Don\'t list facts back at them — weave them into conversation.';
+            
+            return context;
+        }
+        
+        // Extract memories from conversation and save to Supabase
+        async function extractAndSaveMemories(companionId) {
+            try {
+                const conv = state.conversations[companionId];
+                if (!conv || conv.messages.length < 2) return; // Need at least 1 exchange
+                
+                // Get last 20 messages for extraction
+                const recentMessages = conv.messages.slice(-20);
+                const conversationText = recentMessages.map(m => 
+                    `${m.sender === 'user' ? 'User' : 'AI'}: ${m.text}`
+                ).join('\n');
+                
+                // Get existing memories to avoid duplicates
+                const existing = await fetchMemories(companionId);
+                
+                console.log('Extracting memories...');
+                
+                const response = await fetch('/api/memory', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        conversationText: conversationText,
+                        existingMemories: existing
+                    })
+                });
+                
+                if (!response.ok) {
+                    console.error('Memory API error:', response.status);
+                    return;
+                }
+                
+                const data = await response.json();
+                
+                if (data.memories && data.memories.length > 0) {
+                    // Save each memory to Supabase (upsert logic)
+                    for (const memory of data.memories) {
+                        await upsertMemory(companionId, memory);
+                    }
+                    console.log(`Saved ${data.memories.length} memories ✓`);
+                    
+                    // Clear cache so next chat fetches fresh
+                    cachedMemories = null;
+                    cachedMemoriesFor = null;
+                } else {
+                    console.log('No new memories to save');
+                }
+                
+            } catch (error) {
+                console.error('Memory extraction error:', error);
+                // Silent fail — memory is a nice-to-have, not critical
+            }
+        }
+        
+        // Upsert a single memory to Supabase
+        async function upsertMemory(companionId, memory) {
+            try {
+                // Check if this memory key already exists
+                const { data: existing } = await supabaseClient
+                    .from('user_memories')
+                    .select('id, reference_count')
+                    .eq('user_id', state.user.id)
+                    .eq('companion_id', companionId)
+                    .eq('memory_key', memory.key)
+                    .limit(1);
+                
+                if (existing && existing.length > 0) {
+                    // Update existing memory
+                    await supabaseClient
+                        .from('user_memories')
+                        .update({
+                            memory_value: memory.value,
+                            importance: memory.importance,
+                            last_referenced: new Date().toISOString(),
+                            reference_count: (existing[0].reference_count || 0) + 1
+                        })
+                        .eq('id', existing[0].id);
+                } else {
+                    // Insert new memory
+                    await supabaseClient
+                        .from('user_memories')
+                        .insert({
+                            user_id: state.user.id,
+                            companion_id: companionId,
+                            memory_type: memory.type,
+                            memory_key: memory.key,
+                            memory_value: memory.value,
+                            importance: memory.importance
+                        });
+                }
+            } catch (error) {
+                console.error('Memory upsert error:', error);
+            }
+        }
+        
         // ==================== HOME SCREEN ====================
         
         function renderHome() {
@@ -1823,6 +1978,10 @@
         }
         
         function goHome() {
+            // Extract memories in background before leaving chat
+            if (state.selectedAI) {
+                extractAndSaveMemories(state.selectedAI);
+            }
             showScreen('homeScreen');
             renderHome();
         }
@@ -1837,6 +1996,14 @@
             const conv = state.conversations[state.selectedAI];
             document.getElementById('messages').innerHTML = '';
             updateIndicator();
+            
+            // Fetch memories for this companion (runs in background)
+            fetchMemories(state.selectedAI).then(memories => {
+                state._memoryContext = formatMemoriesForPrompt(memories);
+                if (memories.length > 0) {
+                    console.log(`Memory context loaded: ${memories.length} facts`);
+                }
+            });
             
             // Try to load from Supabase first
             const supabaseMessages = await loadConversationFromSupabase(state.selectedAI);
@@ -1935,7 +2102,8 @@
                         companionId: state.selectedAI,
                         relationshipMode: state.relationshipMode,
                         problems: state.problems,
-                        messages: history
+                        messages: history,
+                        memoryContext: state._memoryContext || ''
                     })
                 });
                 
